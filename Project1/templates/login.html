@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Customer Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-10">
+    <!-- Glassmorphic Card Container -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl border border-white/20">
+        <!-- Brand Header -->
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-500 to-accent-500 flex items-center justify-center text-white shadow-lg mx-auto mb-3 animate-float">
+                <i class="fa-solid fa-basket-shopping text-xl"></i>
+            </div>
+            <h1 class="font-poppins font-black text-2xl text-slate-900 tracking-tight">Welcome to Gramkart</h1>
+            <p class="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-wider">Rural Delivery Reimagined</p>
+        </div>
+
+        <!-- Mode Toggle Segmented Controller -->
+        <div class="flex bg-slate-100/80 backdrop-blur-md rounded-xl p-1 mb-6 border border-slate-200/30" id="auth-toggle">
+            <button onclick="toggleMode('login')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none {% if not is_register %} bg-white text-slate-900 shadow-sm {% else %} text-slate-500 hover:text-slate-900 {% endif %}" id="btn-login-tab">
+                Sign In
+            </button>
+            <button onclick="toggleMode('register')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none {% if is_register %} bg-white text-slate-900 shadow-sm {% else %} text-slate-500 hover:text-slate-900 {% endif %}" id="btn-register-tab">
+                Create Account
+            </button>
+        </div>
+
+        <!-- Sign In Form -->
+        <form action="{{ url_for('login') }}" method="POST" id="form-login" class="space-y-5 {% if is_register %} hidden {% endif %}" onsubmit="showLoadingBtn(this)">
+            <div class="space-y-1.5">
+                <label for="login-phone" class="form-label">Mobile Number or Username</label>
+                <div class="relative">
+                    <input type="text" id="login-phone" name="phone" required class="form-input" placeholder="10-digit phone or admin username">
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <label for="login-password" class="form-label">Password</label>
+                    <a href="javascript:void(0)" onclick="alert('Please contact the store owner personally to reset your password!')" class="text-[9px] font-bold text-primary-650 hover:underline mb-1">Forgot?</a>
+                </div>
+                <div class="relative">
+                    <input type="password" id="login-password" name="password" required class="form-input pr-10" placeholder="Enter password">
+                    <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3.5 inset-y-0 flex items-center text-slate-400 focus:outline-none"><i class="fa-solid fa-eye text-xs"></i></button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs">
+                <label class="flex items-center gap-2 text-slate-500 font-semibold cursor-pointer">
+                    <input type="checkbox" class="rounded border-slate-200 text-primary-500 focus:ring-primary-500 w-4 h-4">
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="w-full btn-primary">
+                Sign In
+            </button>
+            
+            <div class="relative my-4 flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
+                <span class="relative bg-white px-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider z-10">Or Connect With</span>
+            </div>
+            
+            <a href="{{ url_for('client.google_login') }}" class="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs border border-slate-200 shadow-sm transition-all">
+                <i class="fa-brands fa-google text-red-500"></i> Continue with Google
+            </a>
+        </form>
+
+        <!-- Register Form -->
+        <form action="{{ url_for('register') }}" method="POST" id="form-register" class="space-y-4 {% if not is_register %} hidden {% endif %}" onsubmit="showLoadingBtn(this)">
+            <div class="space-y-1.5">
+                <label for="reg-name" class="form-label">Full Name *</label>
+                <input type="text" id="reg-name" name="name" required class="form-input" placeholder="e.g. Ramesh Kumar">
+            </div>
+
+            <div class="space-y-1.5">
+                <label for="reg-phone" class="form-label">Mobile Number *</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-450 text-xs font-bold select-none border-r border-slate-250/20 pr-2">+91</span>
+                    <input type="tel" id="reg-phone" name="phone" required pattern="[0-9]{10}" class="form-input !pl-14" placeholder="10-digit number">
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label for="reg-password" class="form-label">Choose Password *</label>
+                <div class="relative">
+                    <input type="password" id="reg-password" name="password" required minlength="4" class="form-input pr-10" placeholder="Choose a password (min 4 characters)">
+                    <button type="button" onclick="togglePasswordVisibility('reg-password', this)" class="absolute right-3.5 inset-y-0 flex items-center text-slate-400 focus:outline-none"><i class="fa-solid fa-eye text-xs"></i></button>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200/50 pt-4 mt-4 space-y-4">
+                <span class="block text-[9px] font-black text-slate-700 uppercase tracking-widest"><i class="fa-solid fa-house-chimney text-primary-500 mr-1.5 animate-pulse"></i>Village Address Details</span>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2 space-y-1.5">
+                        <label for="reg-village" class="form-label !mb-0">Village Name *</label>
+                        <input type="text" id="reg-village" name="village" required class="form-input !py-2 !text-xs" placeholder="e.g. Rampur">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="reg-pincode" class="form-label !mb-0">Pincode *</label>
+                        <input type="text" id="reg-pincode" name="pincode" required pattern="[0-9]{6}" class="form-input !py-2 !text-xs" placeholder="6 digits">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="reg-landmark" class="form-label">Landmark / House Info *</label>
+                    <input type="text" id="reg-landmark" name="landmark" required class="form-input !py-2 !text-xs" placeholder="e.g. Near Shiv Mandir, Red gate">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full btn-primary">
+                Register & Create Account
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleMode(mode) {
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    const btnLogin = document.getElementById('btn-login-tab');
+    const btnRegister = document.getElementById('btn-register-tab');
+    
+    if (mode === 'register') {
+        formLogin.classList.add('hidden');
+        formRegister.classList.remove('hidden');
+        
+        btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none bg-white text-slate-900 shadow-sm";
+        btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none text-slate-500 hover:text-slate-900";
+    } else {
+        formRegister.classList.add('hidden');
+        formLogin.classList.remove('hidden');
+        
+        btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none bg-white text-slate-900 shadow-sm";
+        btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all focus:outline-none text-slate-500 hover:text-slate-900";
+    }
+}
+
+function togglePasswordVisibility(fieldId, btn) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash text-xs"></i>';
+    } else {
+        field.type = 'password';
+        btn.innerHTML = '<i class="fa-solid fa-eye text-xs"></i>';
+    }
+}
+
+function showLoadingBtn(form) {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
+    }
+}
+</script>
+{% endblock %}

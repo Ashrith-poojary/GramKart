@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: gramkart_app
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - db_data:/app/instance
+    env_file:
+      - .env.example
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=sqlite:///instance/gramkart.db
+
+volumes:
+  db_data:

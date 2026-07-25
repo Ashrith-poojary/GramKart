@@ -1,0 +1,207 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Dashboard Overview</h1>
+    <span class="text-xs font-semibold text-slate-450 dark:text-slate-400">Last updated: Just now</span>
+</div>
+
+<!-- Display Cards Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    <!-- Today's Revenue -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-2">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total Sales Revenue</span>
+            <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-indian-rupee-sign"></i></span>
+        </div>
+        <div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white">₹{{ total_revenue|int }}</h3>
+            <p class="text-[9px] text-slate-450 font-bold uppercase mt-1">₹{{ paid_revenue|int }} Received / Settled</p>
+        </div>
+    </div>
+
+    <!-- Today's Orders -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-2">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total Orders</span>
+            <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-receipt"></i></span>
+        </div>
+        <div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white">{{ orders_count }}</h3>
+            <p class="text-[9px] text-slate-450 font-bold uppercase mt-1">{{ pending_orders_count }} Pending Fulfillments</p>
+        </div>
+    </div>
+
+    <!-- Active Customers -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-2">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Customers</span>
+            <span class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-users"></i></span>
+        </div>
+        <div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white">{{ total_customers }}</h3>
+            <p class="text-[9px] text-slate-455 font-bold uppercase mt-1">{{ active_customers }} Active Villagers</p>
+        </div>
+    </div>
+
+    <!-- Stock Alerts -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-2">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Stock Health</span>
+            <span class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        </div>
+        <div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white">{{ out_of_stock + low_stock }}</h3>
+            <p class="text-[9px] text-amber-600 font-bold uppercase mt-1">{{ out_of_stock }} Out / {{ low_stock }} Low Alerts</p>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Interactive Charts Section -->
+<div class="grid md:grid-cols-3 gap-6">
+    <!-- Revenue Trend Chart (Col Span 2) -->
+    <div class="md:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-sm space-y-4">
+        <h3 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-chart-line mr-1 text-green-500"></i> Revenue Sales Growth</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="revenueTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Order Breakdown Pie Chart (Col Span 1) -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-sm space-y-4 flex flex-col justify-between">
+        <h3 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-chart-pie mr-1 text-indigo-500"></i> Order Distribution</h3>
+        <div class="relative h-48 w-full">
+            <canvas id="orderStatusChart"></canvas>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 text-[9px] font-bold text-center uppercase text-slate-450 dark:text-slate-400 mt-2">
+            <div>
+                <span class="block text-slate-850 dark:text-white text-xs">{{ delivered_orders }}</span>
+                Delivered
+            </div>
+            <div>
+                <span class="block text-slate-850 dark:text-white text-xs">{{ pending_orders_count }}</span>
+                Pending
+            </div>
+            <div>
+                <span class="block text-slate-850 dark:text-white text-xs">{{ cancelled_orders }}</span>
+                Cancelled
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders & Broadcast Notification center -->
+<div class="grid md:grid-cols-3 gap-6">
+    <!-- Recent Orders List (Col Span 2) -->
+    <div class="md:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-800 pb-2">
+            <h3 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest"><i class="fa-solid fa-clock-rotate-left mr-1 text-indigo-500"></i> Recent Order Bookings</h3>
+            <a href="{{ url_for('admin.admin_orders') }}" class="text-[9px] text-green-600 font-bold hover:underline uppercase tracking-wider">All Orders</a>
+        </div>
+        <div class="divide-y divide-slate-100/60 dark:divide-slate-800">
+            {% if recent_orders %}
+                {% for o in recent_orders %}
+                <div class="flex justify-between items-center py-3 text-xs">
+                    <div>
+                        <p class="font-bold text-slate-900 dark:text-slate-100">Order #{{ o.id }} - <span class="font-semibold text-slate-500">{{ o.recipient_name }}</span></p>
+                        <p class="text-[9px] text-slate-400 mt-0.5">Method: {{ o.payment_method }} | Status: <span class="font-bold text-slate-700 dark:text-slate-350">{{ o.order_status }}</span></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-slate-950 dark:text-white">₹{{ o.total_amount|int }}</span>
+                        <p class="text-[8px] text-slate-400 mt-0.5">{{ o.created_at.strftime('%d %b, %I:%M %p') }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-xs text-slate-400 font-semibold py-6 text-center">No orders placed yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Announcement Sender -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-bullhorn mr-1 text-rose-500"></i> Send Push Notifications</h3>
+        
+        <form action="{{ url_for('admin.admin_notifications_send') }}" method="POST" class="space-y-3.5">
+            <div>
+                <label for="notif-title" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Alert Title *</label>
+                <input type="text" id="notif-title" name="title" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Free Delivery Weekend!">
+            </div>
+            <div>
+                <label for="notif-message" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Message Description *</label>
+                <textarea id="notif-message" name="message" rows="3" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="Details about this announcement..."></textarea>
+            </div>
+            <div>
+                <label for="notif-target" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Target Recipients</label>
+                <select id="notif-target" name="target" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-white font-bold focus:outline-none">
+                    <option value="all">All Registered Customers</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                Broadcast Announcement
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 1. Sales Revenue Trend Chart (Line Chart)
+    const revCtx = document.getElementById('revenueTrendChart');
+    if (revCtx) {
+        new Chart(revCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Gross Sales (₹)',
+                    data: [1200, 2400, 1800, 3200, 4100, 5600, 7200],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(156, 163, 175, 0.15)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 2. Order Breakdown Chart (Pie Chart)
+    const statusCtx = document.getElementById('orderStatusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Delivered', 'Pending', 'Cancelled'],
+                datasets: [{
+                    data: [{{ delivered_orders }}, {{ pending_orders_count }}, {{ cancelled_orders }}],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f43f5e'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+</script>
+{% endblock %}

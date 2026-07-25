@@ -1,0 +1,332 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Product Management{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Product Directory</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Total products catalog items: {{ products|length }}</p>
+    </div>
+    <button onclick="toggleProductModal('add')" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-colors flex items-center gap-1.5">
+        <i class="fa-solid fa-plus text-xs"></i> Add New Product
+    </button>
+</div>
+
+<!-- Filters Bar -->
+<div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+    <form method="GET" action="{{ url_for('admin.admin_products') }}" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div class="relative w-full sm:w-60">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+            <input type="text" name="q" value="{{ search_q }}" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs font-semibold focus:outline-none focus:border-green-500 text-slate-800 dark:text-white" placeholder="Search product name...">
+        </div>
+
+        <select name="category_id" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-white focus:outline-none">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if cat_id|int == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="stock" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-white focus:outline-none">
+            <option value="">Stock Levels</option>
+            <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low Stock Warnings</option>
+            <option value="out" {% if stock_filter == 'out' %}selected{% endif %}>Out Of Stock</option>
+        </select>
+
+        <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors">Apply</button>
+        {% if search_q or cat_id or stock_filter %}
+        <a href="{{ url_for('admin.admin_products') }}" class="text-xs text-slate-450 font-bold hover:underline">Clear Filters</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Products Table Grid -->
+<div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                <th class="py-3">Info / Photo</th>
+                <th class="py-3">Category</th>
+                <th class="py-3">SKU / Brand</th>
+                <th class="py-3">Price</th>
+                <th class="py-3">Stock count</th>
+                <th class="py-3">Promo Tags</th>
+                <th class="py-3 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="text-xs font-semibold text-slate-700 dark:text-slate-350">
+            {% if products %}
+                {% for p in products %}
+                <tr class="border-b border-slate-100/60 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-950/20">
+                    <td class="py-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 dark:border-slate-800 flex-shrink-0">
+                            <img src="{{ p.image_url if p.image_url and p.image_url != 'None' and p.image_url != '' else '/static/images/placeholder.svg' }}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white leading-snug">{{ p.name }}</h4>
+                            <p class="text-[9px] text-slate-400 font-mono">ID: #{{ p.id }} | Unit: {{ p.unit }}</p>
+                        </div>
+                    </td>
+                    <td class="py-4">{{ p.category.name }}</td>
+                    <td class="py-4">
+                        <span class="font-mono text-[10px] block text-slate-500">{{ p.sku or 'N/A' }}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ p.brand or 'Generic' }}</span>
+                    </td>
+                    <td class="py-4">
+                        <span class="text-slate-900 dark:text-white font-bold">₹{{ p.price|int }}</span>
+                        <span class="text-[10px] text-slate-400 line-through block">MRP: ₹{{ p.mrp|int }}</span>
+                    </td>
+                    <td class="py-4">
+                        {% if p.stock_count <= 0 %}
+                            <span class="bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Out of stock</span>
+                        {% elif p.stock_count <= p.min_stock %}
+                            <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-600 border border-amber-150 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Low Stock ({{ p.stock_count }})</span>
+                        {% else %}
+                            <span class="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-150 text-[10px] font-bold uppercase">{{ p.stock_count }} units</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 space-y-1">
+                        {% if p.is_featured %}<span class="inline-block bg-primary-100 text-primary-700 text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded font-black">Featured</span>{% endif %}
+                        {% if p.is_trending %}<span class="inline-block bg-indigo-100 text-indigo-700 text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded font-black">Trending</span>{% endif %}
+                        {% if p.is_flash_sale %}<span class="inline-block bg-amber-100 text-amber-700 text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded font-black">Flash Sale</span>{% endif %}
+                    </td>
+                    <td class="py-4 text-right">
+                        <div class="flex items-center justify-end gap-2.5">
+                            <!-- Toggle Hide / Show -->
+                            <button onclick="toggleVisibility({{ p.id }}, this)" class="text-xs hover:underline {% if p.is_active %}text-green-600{% else %}text-slate-400{% endif %}" title="Hide/Show Product">
+                                <i class="fa-solid {% if p.is_active %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                            </button>
+                            
+                            <!-- Edit Button -->
+                            <button onclick="toggleProductModal('edit', {{ p.id }})" class="text-xs text-indigo-600 hover:underline"><i class="fa-solid fa-pen"></i></button>
+                            
+                            <!-- Duplicate Button -->
+                            <form action="{{ url_for('admin.admin_product_duplicate', product_id=p.id) }}" method="POST" class="inline">
+                                <button type="submit" class="text-xs text-slate-500 hover:text-slate-700" title="Duplicate"><i class="fa-solid fa-copy"></i></button>
+                            </form>
+
+                            <!-- Delete Button -->
+                            <form action="{{ url_for('admin.admin_product_delete', product_id=p.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');" class="inline">
+                                <button type="submit" class="text-xs text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-450 font-semibold">No products found matching filters.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add / Edit Product Modal Overlay Sheet -->
+<div id="product-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative border border-slate-100 dark:border-slate-800/40 max-h-[90vh] overflow-y-auto">
+        <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-white text-lg font-bold">&times;</button>
+        <h3 id="product-modal-title" class="font-poppins font-black text-sm text-slate-900 dark:text-white mb-4">Add Catalog Product</h3>
+        
+        <form id="product-form" method="POST" action="" enctype="multipart/form-data" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="p-name" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Product Name *</label>
+                    <input type="text" id="p-name" name="name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-category" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Category *</label>
+                    <select id="p-category" name="category_id" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-white font-bold focus:outline-none">
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label for="p-subcategory" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Subcategory</label>
+                    <input type="text" id="p-subcategory" name="subcategory" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-brand" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Brand Name</label>
+                    <input type="text" id="p-brand" name="brand" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-unit" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Unit size (e.g. 1 kg) *</label>
+                    <input type="text" id="p-unit" name="unit" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4">
+                <div>
+                    <label for="p-price" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Price (₹) *</label>
+                    <input type="number" step="0.01" id="p-price" name="price" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-mrp" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">MRP (₹) *</label>
+                    <input type="number" step="0.01" id="p-mrp" name="mrp" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-stock" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Stock count *</label>
+                    <input type="number" id="p-stock" name="stock_count" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-min-stock" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Min Stock Warning</label>
+                    <input type="number" id="p-min-stock" name="min_stock" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" value="5">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label for="p-sku" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">SKU Code</label>
+                    <input type="text" id="p-sku" name="sku" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-barcode" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Barcode Code</label>
+                    <input type="text" id="p-barcode" name="barcode" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="p-weight" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Net Weight</label>
+                    <input type="text" id="p-weight" name="weight" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="p-image-url" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Primary Image URL / Upload File</label>
+                    <input type="text" id="p-image-url" name="image_url" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold mb-1" placeholder="Paste image link">
+                    <input type="file" id="p-image-file" name="image_file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-2">Promotion Flags</label>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <label class="flex items-center gap-1.5 font-semibold text-slate-550 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" id="p-featured" name="is_featured" value="true" class="rounded text-green-500 focus:ring-green-500"> Featured
+                        </label>
+                        <label class="flex items-center gap-1.5 font-semibold text-slate-550 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" id="p-trending" name="is_trending" value="true" class="rounded text-green-500 focus:ring-green-500"> Trending
+                        </label>
+                        <label class="flex items-center gap-1.5 font-semibold text-slate-550 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" id="p-flash" name="is_flash_sale" value="true" class="rounded text-green-500 focus:ring-green-500"> Flash Sale
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="p-desc" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Product Description</label>
+                <textarea id="p-desc" name="description" rows="2" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="Tell buyers about this product..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="p-specs" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Specifications</label>
+                    <textarea id="p-specs" name="specifications" rows="2" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Dimensions, packing count"></textarea>
+                </div>
+                <div>
+                    <label for="p-ingredients" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Ingredients</label>
+                    <textarea id="p-ingredients" name="ingredients" rows="2" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="Ingredients if processed item"></textarea>
+                </div>
+            </div>
+
+            <div id="edit-active-block" class="hidden">
+                <label for="p-active" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Visibility Status</label>
+                <select id="p-active" name="is_active" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-white focus:outline-none">
+                    <option value="True">Visible (Active)</option>
+                    <option value="False">Hidden (Inactive)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                Save Product Details
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Products data registry to prevent HTML quote escaping issues
+const productsData = {
+    {% for p in products %}
+    "{{ p.id }}": {{ p.to_dict()|tojson|safe }},
+    {% endfor %}
+};
+
+function toggleProductModal(mode, productId) {
+    const modal = document.getElementById('product-modal');
+    const form = document.getElementById('product-form');
+    const title = document.getElementById('product-modal-title');
+    const activeBlock = document.getElementById('edit-active-block');
+    
+    if (!modal) return;
+    
+    if (modal.classList.contains('hidden')) {
+        if (mode === 'add') {
+            title.innerText = "Add Catalog Product";
+            form.action = "{{ url_for('admin.admin_product_add') }}";
+            form.reset();
+            activeBlock.classList.add('hidden');
+        } else if (mode === 'edit' && productId) {
+            const data = productsData[productId];
+            if (!data) return;
+            
+            title.innerText = "Edit Catalog Product";
+            form.action = `/admin/products/edit/${data.id}`;
+            
+            document.getElementById('p-name').value = data.name || '';
+            document.getElementById('p-category').value = data.category_id || '';
+            document.getElementById('p-subcategory').value = data.subcategory || '';
+            document.getElementById('p-brand').value = data.brand || '';
+            document.getElementById('p-unit').value = data.unit || '';
+            document.getElementById('p-price').value = data.price || 0;
+            document.getElementById('p-mrp').value = data.mrp || 0;
+            document.getElementById('p-stock').value = data.stock_count || 0;
+            document.getElementById('p-min-stock').value = data.min_stock || 5;
+            document.getElementById('p-sku').value = data.sku || '';
+            document.getElementById('p-barcode').value = data.barcode || '';
+            document.getElementById('p-weight').value = data.weight || '';
+            document.getElementById('p-image-url').value = data.image_url || '';
+            document.getElementById('p-desc').value = data.description || '';
+            document.getElementById('p-specs').value = data.specifications || '';
+            document.getElementById('p-ingredients').value = data.ingredients || '';
+            
+            document.getElementById('p-featured').checked = !!data.is_featured;
+            document.getElementById('p-trending').checked = !!data.is_trending;
+            document.getElementById('p-flash').checked = !!data.is_flash_sale;
+            
+            document.getElementById('p-active').value = data.is_active ? 'True' : 'False';
+            activeBlock.classList.remove('hidden');
+        }
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+    }
+}
+
+function toggleVisibility(id, btn) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/admin/products/toggle/${id}`, { 
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const icon = btn.querySelector('i');
+            if (data.is_active) {
+                icon.className = "fa-solid fa-eye";
+                btn.className = "text-xs hover:underline text-green-600";
+            } else {
+                icon.className = "fa-solid fa-eye-slash";
+                btn.className = "text-xs hover:underline text-slate-400";
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

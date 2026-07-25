@@ -1,0 +1,145 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Order Fulfilment{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Order Fulfilment Panel</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Track and dispatch orders, verify payment status, and manage timelines.</p>
+    </div>
+</div>
+
+<!-- Filter controls -->
+<div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-4 shadow-sm flex flex-wrap gap-2.5">
+    <a href="{{ url_for('admin.admin_orders') }}" class="px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {% if not current_filter %}bg-slate-900 text-white dark:bg-white dark:text-slate-900{% else %}text-slate-500{% endif %}">
+        All Bookings
+    </a>
+    {% for st in ['Placed', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'] %}
+    <a href="{{ url_for('admin.admin_orders', status=st) }}" class="px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {% if current_filter == st %}bg-slate-900 text-white dark:bg-white dark:text-slate-900{% else %}text-slate-500{% endif %}">
+        {{ st }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Orders List -->
+<div class="space-y-6">
+    {% if orders %}
+        {% for o in orders %}
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+            <!-- Order Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-50 dark:border-slate-800 pb-3">
+                <div>
+                    <h3 class="font-poppins font-black text-sm text-slate-900 dark:text-white">Order #{{ o.id }}</h3>
+                    <p class="text-[9px] text-slate-450 font-bold uppercase tracking-wider mt-0.5">Placed: {{ o.created_at.strftime('%d %b %Y, %I:%M %p') }}</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider {% if o.order_status == 'Delivered' %}bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900{% elif o.order_status == 'Cancelled' %}bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900{% else %}bg-amber-50 dark:bg-amber-950/20 text-amber-600 border border-amber-100 dark:border-amber-900{% endif %}">
+                        {{ o.order_status }}
+                    </span>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider {% if o.payment_status == 'Paid' %}bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900{% else %}bg-slate-100 dark:bg-slate-800 text-slate-550 dark:text-slate-400{% endif %}">
+                        Payment: {{ o.payment_status }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Recipient details & Line items grid -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Delivery Info -->
+                <div class="space-y-2 text-xs">
+                    <h4 class="font-bold text-slate-450 uppercase tracking-widest text-[9px]"><i class="fa-solid fa-truck mr-1"></i> Delivery Dispatch details</h4>
+                    <p class="font-bold text-slate-900 dark:text-white">{{ o.recipient_name }}</p>
+                    <p class="text-slate-500 font-semibold leading-relaxed">{{ o.delivery_address }}</p>
+                    <p class="text-slate-500 font-semibold">Phone: {{ o.recipient_phone }}</p>
+                    {% if o.delivery_slot %}
+                    <p class="text-slate-500 font-semibold"><i class="fa-solid fa-clock text-[10px] mr-1 text-indigo-500"></i> Slot: {{ o.delivery_slot }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Products breakdown -->
+                <div class="space-y-2 text-xs md:col-span-2">
+                    <h4 class="font-bold text-slate-450 uppercase tracking-widest text-[9px]"><i class="fa-solid fa-basket-shopping mr-1"></i> Basket Items</h4>
+                    <div class="divide-y divide-slate-100/60 dark:divide-slate-800/60">
+                        {% for item in o.items %}
+                        <div class="flex justify-between py-2 font-semibold">
+                            <span class="text-slate-850 dark:text-slate-200">{{ item.product.name }} (x{{ item.quantity }})</span>
+                            <span class="text-slate-500">₹{{ item.price|int * item.quantity }}</span>
+                        </div>
+                        {% endfor %}
+                        <!-- Totals -->
+                        <div class="flex justify-between pt-2 font-bold text-slate-950 dark:text-white border-t border-slate-100 dark:border-slate-800">
+                            <span>Total (incl. ₹{{ o.delivery_fee|int }} delivery)</span>
+                            <span>₹{{ o.total_amount|int }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action footer & Timelines -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-slate-50 dark:border-slate-800">
+                <!-- Timeline status link -->
+                <div class="flex gap-2">
+                    <a href="/order/{{ o.id }}/invoice" target="_blank" class="text-xs text-indigo-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-print"></i> Print Invoice
+                    </a>
+                    
+                    <button onclick="toggleTimeline({{ o.id }})" class="text-xs text-slate-400 font-bold hover:text-slate-700 dark:hover:text-white flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info"></i> Timeline Logs ({{ o.timeline_logs|length }})
+                    </button>
+                </div>
+
+                <!-- Status Update controls -->
+                <form action="{{ url_for('admin.admin_order_status', order_id=o.id) }}" method="POST" class="flex flex-wrap items-center gap-2">
+                    <select name="order_status" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-white font-bold focus:outline-none">
+                        {% for status_option in ['Placed', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'] %}
+                        <option value="{{ status_option }}" {% if o.order_status == status_option %}selected{% endif %}>Status: {{ status_option }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="payment_status" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-850 dark:text-white font-bold focus:outline-none">
+                        {% for pay_option in ['Pending', 'Paid'] %}
+                        <option value="{{ pay_option }}" {% if o.payment_status == pay_option %}selected{% endif %}>Payment: {{ pay_option }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <input type="text" name="timeline_message" placeholder="Optional update note..." class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none text-slate-800 dark:text-white font-semibold">
+
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-colors">Update</button>
+                </form>
+            </div>
+
+            <!-- Expandable Timeline log section -->
+            <div id="timeline-{{ o.id }}" class="hidden bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl p-4 text-[11px] space-y-2">
+                <p class="font-black text-slate-400 uppercase tracking-widest text-[8px] mb-2"><i class="fa-solid fa-list-check"></i> Timeline history</p>
+                {% if o.timeline_logs %}
+                    {% for log in o.timeline_logs %}
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-slate-700 dark:text-slate-350"><span class="text-indigo-500 font-black">[{{ log.status }}]</span> {{ log.message }}</span>
+                        <span class="text-[9px] text-slate-400 font-semibold">{{ log.created_at.strftime('%d %b, %I:%M %p') }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-slate-450 font-semibold">No custom status updates logged yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="py-12 text-center text-slate-450 font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl">
+            No orders found under this filter.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleTimeline(id) {
+    const box = document.getElementById(`timeline-${id}`);
+    if (box) {
+        box.classList.toggle('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Checkout{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('cart') }}" class="text-slate-500 hover:text-primary-600 text-xs font-bold flex items-center gap-1">
+        <i class="fa-solid fa-arrow-left"></i> Back to Cart
+    </a>
+</div>
+
+<!-- Progress stepper indicator -->
+<div class="max-w-4xl mx-auto mb-10">
+    <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+        <div class="flex flex-col items-center gap-1.5 text-primary-600">
+            <span class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center border border-primary-250"><i class="fa-solid fa-cart-shopping"></i></span>
+            <span>Shopping Cart</span>
+        </div>
+        <div class="h-0.5 flex-grow bg-primary-300 mx-2"></div>
+        <div class="flex flex-col items-center gap-1.5 text-primary-650">
+            <span class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center shadow-md shadow-primary-500/10 pulse-active"><i class="fa-solid fa-truck"></i></span>
+            <span>Delivery & Pay</span>
+        </div>
+        <div class="h-0.5 flex-grow bg-slate-200 mx-2"></div>
+        <div class="flex flex-col items-center gap-1.5">
+            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></span>
+            <span>Confirmed</span>
+        </div>
+    </div>
+</div>
+
+<form action="{{ url_for('checkout') }}" method="POST" id="checkout-form" class="grid md:grid-cols-3 gap-8 items-start max-w-4xl mx-auto mb-12">
+    <!-- Checkout Form (Col Span 2) -->
+    <div class="md:col-span-2 space-y-6">
+        <!-- Delivery Address Details -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 space-y-4">
+            <h2 class="font-poppins font-black text-md text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-primary-500"></i> Delivery Address
+            </h2>
+
+            {% if addresses %}
+            <div class="space-y-1">
+                <label for="address-selector" class="block text-[9px] font-black text-slate-450 uppercase tracking-widest">Select Saved Address</label>
+                <select id="address-selector" name="address_id" onchange="onAddressSelect()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                    <option value="custom">Use new address coordinates below</option>
+                    {% for addr in addresses %}
+                    <option value="{{ addr.id }}" data-recipient="{{ addr.recipient_name }}" data-phone="{{ addr.recipient_phone }}" data-village="{{ addr.village }}" data-landmark="{{ addr.landmark }}" data-pincode="{{ addr.pincode }}" {% if addr.is_default %}selected{% endif %}>
+                        {{ addr.recipient_name }} - {{ addr.village }} {% if addr.is_default %}(Default){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="recipient_name" class="form-label">Recipient Name *</label>
+                    <input type="text" id="recipient_name" name="recipient_name" value="{{ user.name }}" required class="form-input">
+                </div>
+                <div>
+                    <label for="recipient_phone" class="form-label">Contact Number *</label>
+                    <input type="tel" id="recipient_phone" name="recipient_phone" value="{{ user.phone }}" required class="form-input">
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2">
+                    <label for="village" class="form-label">Village / Locality *</label>
+                    <input type="text" id="village" name="village" value="{{ user.village }}" required class="form-input" placeholder="e.g. Rampur Village">
+                </div>
+                <div>
+                    <label for="pincode" class="form-label">Pincode *</label>
+                    <input type="text" id="pincode" name="pincode" value="{{ user.pincode }}" required class="form-input" placeholder="e.g. 841301">
+                </div>
+            </div>
+
+            <div>
+                <label for="landmark" class="form-label">Landmark / House Info *</label>
+                <input type="text" id="landmark" name="landmark" value="{{ user.landmark }}" required class="form-input" placeholder="e.g. Near Shiv Mandir">
+            </div>
+        </div>
+
+        <!-- Delivery slot selections -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 space-y-4">
+            <h2 class="font-poppins font-black text-md text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-clock text-primary-500"></i> Choose Delivery Slot
+            </h2>
+            <div class="grid sm:grid-cols-3 gap-3">
+                <label class="relative flex flex-col p-3 rounded-2xl border border-primary-500 bg-primary-50/15 cursor-pointer text-xs font-bold text-slate-800" id="slot1">
+                    <input type="radio" name="delivery_slot" value="Instant (15-30 Mins)" checked class="hidden" onclick="selectSlot('slot1')">
+                    Instant Delivery
+                    <span class="text-[9px] text-slate-400 font-semibold mt-1">15-30 Mins (Free)</span>
+                </label>
+                <label class="relative flex flex-col p-3 rounded-2xl border border-slate-200 bg-slate-50/50 cursor-pointer text-xs font-bold text-slate-800" id="slot2">
+                    <input type="radio" name="delivery_slot" value="Morning (8 AM - 12 PM)" class="hidden" onclick="selectSlot('slot2')">
+                    Morning Slot
+                    <span class="text-[9px] text-slate-400 font-semibold mt-1">8 AM - 12 PM</span>
+                </label>
+                <label class="relative flex flex-col p-3 rounded-2xl border border-slate-200 bg-slate-50/50 cursor-pointer text-xs font-bold text-slate-800" id="slot3">
+                    <input type="radio" name="delivery_slot" value="Evening (4 PM - 8 PM)" class="hidden" onclick="selectSlot('slot3')">
+                    Evening Slot
+                    <span class="text-[9px] text-slate-400 font-semibold mt-1">4 PM - 8 PM</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Payment Method Details -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 space-y-4">
+            <h2 class="font-poppins font-black text-md text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-credit-card text-accent-500"></i> Payment Mode
+            </h2>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <!-- COD Card -->
+                <label class="relative flex items-center gap-3.5 p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/55 cursor-pointer transition-all duration-300" id="cod-label">
+                    <input type="radio" name="payment_method" value="COD" checked onclick="togglePaymentFields('COD')" class="w-4 h-4 text-primary-500 focus:ring-primary-500">
+                    <div>
+                        <span class="font-bold text-xs text-slate-800 block">Cash on Delivery (COD)</span>
+                        <span class="text-[9px] text-slate-450 font-bold uppercase">Pay on Delivery</span>
+                    </div>
+                </label>
+
+                <!-- UPI Card -->
+                <label class="relative flex items-center gap-3.5 p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/55 cursor-pointer transition-all duration-300" id="upi-label">
+                    <input type="radio" name="payment_method" value="UPI" onclick="togglePaymentFields('UPI')" class="w-4 h-4 text-primary-500 focus:ring-primary-500">
+                    <div>
+                        <span class="font-bold text-xs text-slate-800 block">UPI Instant Payment</span>
+                        <span class="text-[9px] text-slate-450 font-bold uppercase">Scan QR scanner</span>
+                    </div>
+                </label>
+
+                <!-- Razorpay Gateway Mock -->
+                <label class="relative flex items-center gap-3.5 p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/55 cursor-pointer transition-all duration-300" id="razorpay-label">
+                    <input type="radio" name="payment_method" value="Razorpay" onclick="togglePaymentFields('Razorpay')" class="w-4 h-4 text-primary-500 focus:ring-primary-500">
+                    <div>
+                        <span class="font-bold text-xs text-slate-800 block">Razorpay secure</span>
+                        <span class="text-[9px] text-slate-450 font-bold uppercase">Cards, UPI & Wallet</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- UPI Transaction reference block -->
+            <div id="upi-details-block" class="hidden bg-amber-50/30 rounded-2xl p-4 border border-amber-100/60 space-y-3">
+                <p class="text-[11px] text-amber-800 font-bold leading-relaxed">
+                    <i class="fa-solid fa-circle-info mr-1 text-xs"></i> After placing the order, scan the UPI QR code on the success screen and input your transaction Reference ID below to confirm.
+                </p>
+                <div>
+                    <label for="payment_reference" class="form-label">UPI Reference / UTR ID *</label>
+                    <input type="text" id="payment_reference" name="payment_reference" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary-500 transition-all font-semibold text-slate-800" placeholder="e.g. 340918002931">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Box (Col Span 1) -->
+    <div class="glass-card rounded-3xl p-6 border border-slate-100/50 space-y-6">
+        <h2 class="font-poppins font-black text-sm text-slate-900 border-b border-slate-100 pb-3">Review Items</h2>
+        
+        <div class="space-y-4 max-h-48 overflow-y-auto pr-1">
+            {% for item in cart_items %}
+                <div class="flex justify-between items-center gap-2">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 line-clamp-1 leading-snug">{{ item.product.name }}</h4>
+                        <p class="text-[9px] text-slate-400 font-bold">Qty: {{ item.quantity }} &times; {{ item.product.unit }}</p>
+                    </div>
+                    <span class="text-xs font-black text-slate-950">₹{{ item.total|int }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <hr class="border-slate-100">
+
+        <div class="space-y-3">
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>Items Subtotal</span>
+                <span class="text-slate-800 font-bold">₹{{ subtotal|int }}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>GST (5%)</span>
+                <span class="text-slate-800 font-bold">₹{{ (total * 0.05)|int }}</span>
+            </div>
+            {% if discount_amount > 0 %}
+            <div class="flex justify-between items-center text-xs text-emerald-600 font-semibold">
+                <span>Coupon discount</span>
+                <span class="font-bold">-₹{{ discount_amount|int }}</span>
+            </div>
+            {% endif %}
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>Delivery Charge</span>
+                <span class="text-slate-800 font-bold">{% if delivery_fee_calculated == 0 %}<span class="text-primary-600">FREE</span>{% else %}₹{{ delivery_fee_calculated|int }}{% endif %}</span>
+            </div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between items-center text-sm font-black text-slate-900">
+                <span>Grand Total</span>
+                <span class="text-base">₹{{ total|int }}</span>
+            </div>
+        </div>
+
+        <button type="button" onclick="submitCheckoutForm()" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-3.5 px-6 rounded-2xl text-xs transition-all shadow-lg shadow-primary-500/10">
+            Confirm Order & Place
+        </button>
+    </div>
+</form>
+
+<!-- Razorpay secure payment loading overlay -->
+<div id="payment-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center text-white">
+    <div class="text-center space-y-4 max-w-xs p-6 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl">
+        <div class="w-14 h-14 border-4 border-t-primary-500 border-r-transparent border-slate-700 rounded-full animate-spin mx-auto mb-4"></div>
+        <h3 class="font-poppins font-black text-sm">Secure Payment Gateway</h3>
+        <p class="text-[11px] text-slate-450 font-semibold leading-relaxed">Processing payment details via Razorpay secure check... Do not close or reload this page.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function onAddressSelect() {
+    const sel = document.getElementById('address-selector');
+    if (!sel) return;
+    const opt = sel.options[sel.selectedIndex];
+    
+    if (opt.value === 'custom') {
+        document.getElementById('recipient_name').value = '';
+        document.getElementById('recipient_phone').value = '';
+        document.getElementById('village').value = '';
+        document.getElementById('pincode').value = '';
+        document.getElementById('landmark').value = '';
+    } else {
+        document.getElementById('recipient_name').value = opt.getAttribute('data-recipient');
+        document.getElementById('recipient_phone').value = opt.getAttribute('data-phone');
+        document.getElementById('village').value = opt.getAttribute('data-village');
+        document.getElementById('pincode').value = opt.getAttribute('data-pincode');
+        document.getElementById('landmark').value = opt.getAttribute('data-landmark');
+    }
+}
+
+function selectSlot(slotId) {
+    ['slot1', 'slot2', 'slot3'].forEach(id => {
+        const lbl = document.getElementById(id);
+        if (id === slotId) {
+            lbl.classList.replace('border-slate-200', 'border-primary-500');
+            lbl.classList.replace('bg-slate-50/50', 'bg-primary-50/15');
+            lbl.querySelector('input').checked = true;
+        } else {
+            lbl.classList.replace('border-primary-500', 'border-slate-200');
+            lbl.classList.replace('bg-primary-50/15', 'bg-slate-50/50');
+            lbl.querySelector('input').checked = false;
+        }
+    });
+}
+
+function togglePaymentFields(method) {
+    const upiBlock = document.getElementById('upi-details-block');
+    const refInput = document.getElementById('payment_reference');
+    const codLabel = document.getElementById('cod-label');
+    const upiLabel = document.getElementById('upi-label');
+    const rzpLabel = document.getElementById('razorpay-label');
+    
+    ['cod-label', 'upi-label', 'razorpay-label'].forEach(id => {
+        const lbl = document.getElementById(id);
+        lbl.classList.replace('border-primary-500', 'border-slate-200');
+        lbl.classList.replace('bg-primary-50/20', 'bg-slate-50/50');
+    });
+
+    if (method === 'UPI') {
+        upiBlock.classList.remove('hidden');
+        refInput.required = true;
+        upiLabel.classList.replace('border-slate-200', 'border-primary-500');
+        upiLabel.classList.replace('bg-slate-50/50', 'bg-primary-50/20');
+    } else if (method === 'Razorpay') {
+        upiBlock.classList.add('hidden');
+        refInput.required = false;
+        refInput.value = '';
+        rzpLabel.classList.replace('border-slate-200', 'border-primary-500');
+        rzpLabel.classList.replace('bg-slate-50/50', 'bg-primary-50/20');
+    } else {
+        upiBlock.classList.add('hidden');
+        refInput.required = false;
+        refInput.value = '';
+        codLabel.classList.replace('border-slate-200', 'border-primary-500');
+        codLabel.classList.replace('bg-slate-50/50', 'bg-primary-50/20');
+    }
+}
+
+function submitCheckoutForm() {
+    const form = document.getElementById('checkout-form');
+    if (!form.reportValidity()) return;
+    
+    const method = form.querySelector('input[name="payment_method"]:checked').value;
+    
+    if (method === 'Razorpay') {
+        const overlay = document.getElementById('payment-overlay');
+        overlay.classList.remove('hidden');
+        
+        const payload = {
+            recipient_name: document.getElementById('recipient_name').value,
+            recipient_phone: document.getElementById('recipient_phone').value,
+            village: document.getElementById('village').value,
+            pincode: document.getElementById('pincode').value,
+            landmark: document.getElementById('landmark').value,
+            delivery_slot: form.querySelector('input[name="delivery_slot"]:checked').value,
+            payment_method: 'Razorpay'
+        };
+        
+        fetch('/checkout/razorpay/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': form.querySelector('input[name="csrf_token"]').value
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                overlay.classList.add('hidden');
+                alert(data.message || 'Failed to create Razorpay payment order intent.');
+                return;
+            }
+            
+            const options = {
+                "key": data.key_id,
+                "amount": data.amount,
+                "currency": data.currency,
+                "name": "GramKart",
+                "description": "Secure Grocery Checkout",
+                "order_id": data.order_id,
+                "handler": function (response){
+                    fetch('/payment/verify', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': form.querySelector('input[name="csrf_token"]').value
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            db_order_id: data.db_order_id
+                        })
+                    })
+                    .then(verifyRes => verifyRes.json())
+                    .then(verifyData => {
+                        overlay.classList.add('hidden');
+                        if (verifyData.success) {
+                            window.location.href = `/order/success/${data.db_order_id}`;
+                        } else {
+                            alert(verifyData.message || 'Signature verification failed.');
+                        }
+                    })
+                    .catch(err => {
+                        overlay.classList.add('hidden');
+                        alert('Verification request failed. Contact support.');
+                    });
+                },
+                "prefill": {
+                    "name": data.recipient_name,
+                    "contact": data.recipient_phone,
+                    "email": data.user_email
+                },
+                "theme": {
+                    "color": "#16a34a"
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        overlay.classList.add('hidden');
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        })
+        .catch(err => {
+            overlay.classList.add('hidden');
+            alert('Failed to initiate secure checkout pipeline.');
+        });
+    } else {
+        form.submit();
+    }
+}
+
+// Initial default run
+onAddressSelect();
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Your Shopping Cart{% endblock %}
+
+{% block content %}
+<h1 class="font-poppins font-black text-2xl md:text-3xl text-slate-900 tracking-tight mb-8">My Shopping Cart</h1>
+
+{% if cart_items or saved_items %}
+<div class="grid md:grid-cols-3 gap-8 items-start">
+    <!-- Left Column: Active Cart & Saved Items -->
+    <div class="md:col-span-2 space-y-8">
+        {% if cart_items %}
+        <div class="space-y-4">
+            <h2 class="font-poppins font-black text-sm text-slate-800 uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-cart-flatbed text-primary-500"></i> Active Items</h2>
+            {% for item in cart_items %}
+            <div class="glass-card rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-center justify-between transition-all hover:border-primary-100/50" id="cart-item-{{ item.product.id }}">
+                <!-- Product Details -->
+                <div class="flex items-center gap-4 flex-grow w-full sm:w-auto">
+                    <div class="w-16 h-16 rounded-xl bg-white border border-slate-100/50 overflow-hidden flex-shrink-0">
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800 line-clamp-1 leading-snug">{{ item.product.name }}</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Unit: {{ item.product.unit }}</p>
+                        <p class="text-sm font-black text-slate-900">₹{{ item.product.price|int }}</p>
+                    </div>
+                </div>
+                
+                <!-- Quantity controls & Action Buttons -->
+                <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto flex-shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                    <!-- Quantity adjust -->
+                    <div class="flex items-center bg-slate-100 rounded-xl px-2 py-1 border border-slate-200/50">
+                        <button onclick="changeQty({{ item.product.id }}, -1)" class="text-slate-500 hover:text-slate-900 font-bold px-2 py-0.5 focus:outline-none"><i class="fa-solid fa-minus text-[9px]"></i></button>
+                        <span id="qty-{{ item.product.id }}" class="font-bold text-sm text-slate-850 w-8 text-center">{{ item.quantity }}</span>
+                        <button onclick="changeQty({{ item.product.id }}, 1)" class="text-slate-500 hover:text-slate-900 font-bold px-2 py-0.5 focus:outline-none"><i class="fa-solid fa-plus text-[9px]"></i></button>
+                    </div>
+
+                    <!-- Item total cost -->
+                    <div class="text-right w-20">
+                        <p id="total-{{ item.product.id }}" class="font-black text-sm text-slate-950">₹{{ item.total|int }}</p>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex items-center gap-1">
+                        <!-- Save for later -->
+                        <form action="{{ url_for('cart_save_later', product_id=item.product.id) }}" method="POST">
+                            <button type="submit" class="text-slate-400 hover:text-primary-600 p-2 rounded-xl hover:bg-primary-50 transition-colors focus:outline-none" title="Save for Later">
+                                <i class="fa-regular fa-bookmark text-sm"></i>
+                            </button>
+                        </form>
+                        <!-- Remove item -->
+                        <form action="{{ url_for('cart_remove', product_id=item.product.id) }}" method="POST" onsubmit="animateRemove(event, {{ item.product.id }})">
+                            <button type="submit" class="text-slate-300 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition-colors focus:outline-none" title="Remove">
+                                <i class="fa-regular fa-trash-can text-sm"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Save For Later Section -->
+        {% if saved_items %}
+        <div class="space-y-4 border-t border-slate-100 pt-6">
+            <h2 class="font-poppins font-black text-sm text-slate-800 uppercase tracking-widest flex items-center gap-2"><i class="fa-regular fa-bookmark text-primary-500"></i> Saved For Later ({{ saved_items|length }})</h2>
+            <div class="grid sm:grid-cols-2 gap-4">
+                {% for item in saved_items %}
+                <div class="glass-card rounded-2xl p-4 flex gap-4 items-center justify-between border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-white border border-slate-100 overflow-hidden flex-shrink-0">
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-800 line-clamp-1 leading-snug">{{ item.name }}</h4>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">{{ item.unit }} &bull; ₹{{ item.price|int }}</p>
+                        </div>
+                    </div>
+                    <form action="{{ url_for('cart_move_to_active', product_id=item.id) }}" method="POST">
+                        <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition-colors whitespace-nowrap">
+                            Move to Cart
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Summary Box (Col Span 1) -->
+    <div class="glass-card rounded-3xl p-6 space-y-6">
+        <h2 class="font-poppins font-black text-lg text-slate-900">Order Summary</h2>
+        
+        <!-- Delivery fee progress meter -->
+        <div id="del-meter" class="bg-primary-50/50 rounded-2xl p-4 border border-primary-100/50">
+            <span id="del-meter-text" class="text-[11px] font-bold text-primary-800 block mb-1.5">
+                {% if cart_subtotal >= free_delivery_threshold %}
+                    🎉 You qualify for FREE Delivery!
+                {% else %}
+                    Add ₹{{ (free_delivery_threshold - cart_subtotal)|int }} more for FREE Delivery!
+                {% endif %}
+            </span>
+            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                <div id="del-meter-bar" class="bg-gradient-to-r from-primary-400 to-primary-600 h-1.5 transition-all duration-500" style="width: {{ min(100, (cart_subtotal / free_delivery_threshold * 100)) }}%"></div>
+            </div>
+            
+            <!-- Delivery Estimation Banner -->
+            <div class="flex items-center gap-2 mt-3 text-[10px] text-slate-500 font-bold bg-white/60 p-2 rounded-xl border border-slate-100">
+                <i class="fa-solid fa-clock text-primary-500 animate-pulse"></i>
+                <span>Estimated Arrival: <span class="text-slate-700">{{ estimated_delivery }}</span></span>
+            </div>
+        </div>
+
+        <!-- Promo Coupon Input -->
+        <div class="space-y-2">
+            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Apply Promo Coupon</label>
+            <div class="flex gap-2">
+                <input type="text" id="coupon-code" value="{{ applied_coupon_code or '' }}" placeholder="Enter code (e.g. GRAM50)" class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary-500 font-semibold" {% if applied_coupon_code %}disabled{% endif %}>
+                {% if applied_coupon_code %}
+                <button onclick="removeCoupon()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors">Remove</button>
+                {% else %}
+                <button onclick="applyCoupon()" class="bg-slate-900 hover:bg-slate-950 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors">Apply</button>
+                {% endif %}
+            </div>
+            <p id="coupon-message" class="text-[10px] text-slate-400 font-bold {% if applied_coupon_code %}text-emerald-600 block{% else %}hidden{% endif %}">
+                {% if applied_coupon_code %}✓ Coupon applied! Saved ₹{{ discount_amount|int }}.{% endif %}
+            </p>
+        </div>
+
+        <!-- Breakdown summary -->
+        <div class="space-y-3.5">
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>Items Subtotal</span>
+                <span id="subtotal-val" class="text-slate-800 font-bold">₹{{ cart_subtotal|int }}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>GST / Taxes (5%)</span>
+                <span id="gst-val" class="text-slate-800 font-bold">₹{{ gst_amount|int }}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-500 font-semibold">
+                <span>Delivery Charge</span>
+                <span id="del-fee-val" class="text-slate-800 font-bold">{% if delivery_fee_calculated == 0 %}<span class="text-primary-600">FREE</span>{% else %}₹{{ delivery_fee_calculated|int }}{% endif %}</span>
+            </div>
+            <div id="coupon-discount-row" class="flex justify-between items-center text-xs text-emerald-600 font-semibold {% if not applied_coupon_code %}hidden{% endif %}">
+                <span>Coupon Discount</span>
+                <span id="discount-val">-₹{{ discount_amount|int }}</span>
+            </div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between items-center text-sm font-black text-slate-900">
+                <span>Grand Total</span>
+                <span id="total-val" class="text-base">₹{{ cart_grand_total|int }}</span>
+            </div>
+        </div>
+
+        {% if cart_items %}
+        <a href="{{ url_for('checkout') }}" class="block text-center bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-3.5 px-6 rounded-2xl text-xs transition-all shadow-lg shadow-primary-500/10 active:scale-98">
+            Proceed to Checkout
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="glass-card rounded-3xl p-12 text-center max-w-md mx-auto mt-10">
+    <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4 text-slate-350 text-2xl">
+        <i class="fa-solid fa-cart-shopping"></i>
+    </div>
+    <h3 class="font-poppins font-bold text-md text-slate-900 mb-1">Your cart is empty</h3>
+    <p class="text-xs text-slate-400 mb-6">Looks like you haven't added any products to your cart yet.</p>
+    <a href="{{ url_for('index') }}" class="bg-primary-500 hover:bg-primary-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-colors">Go Shop Now</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function changeQty(productId, delta) {
+    const qtySpan = document.getElementById(`qty-${productId}`);
+    let currentQty = parseInt(qtySpan.innerText);
+    let newQty = currentQty + delta;
+    
+    if (newQty < 0) return;
+    
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/cart/update/${productId}`, {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(response => response.json().then(data => ({ status: response.status, data })))
+    .then(({ status, data }) => {
+        if (status === 200) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error updating quantity.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function animateRemove(event, productId) {
+    event.preventDefault();
+    const itemDiv = document.getElementById(`cart-item-${productId}`);
+    if (itemDiv) {
+        itemDiv.style.transform = 'translateX(50px)';
+        itemDiv.style.opacity = '0';
+        setTimeout(() => {
+            event.target.submit();
+        }, 300);
+    } else {
+        event.target.submit();
+    }
+}
+
+function applyCoupon() {
+    const code = document.getElementById('coupon-code').value.trim();
+    if (!code) return;
+    
+    fetch('/api/coupon/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.reload();
+        } else {
+            const msg = document.getElementById('coupon-message');
+            msg.innerText = data.message;
+            msg.className = "text-[10px] text-rose-500 font-bold block";
+        }
+    });
+}
+
+function removeCoupon() {
+    fetch('/api/coupon/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

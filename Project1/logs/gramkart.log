@@ -1,0 +1,263 @@
+[2026-07-25 10:21:45,650] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:21:46,128] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:22:18,820] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:22:19,529] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:22:52,348] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:22:52,759] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:23:11,115] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:23:11,632] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:23:31,410] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:23:31,852] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:25:43,663] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:27:36,227] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:28:08,505] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:28:42,084] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:29:35,958] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:29:59,889] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:30:23,467] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:31:02,281] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:31:20,445] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:35:29,899] ERROR in app [system]: Alter columns check failed or columns already present: no such table: products
+[2026-07-25 10:35:49,405] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 10:36:06,339] ERROR in app [127.0.0.1]: Database Query/Session error: Parent instance <Category at 0x15629d4a4e0> is not bound to a Session; lazy load operation of attribute 'products' cannot proceed (Background on this error at: https://sqlalche.me/e/20/bhk3)
+[2026-07-25 10:36:15,083] ERROR in app [127.0.0.1]: Database Query/Session error: Parent instance <Category at 0x15629d127b0> is not bound to a Session; lazy load operation of attribute 'products' cannot proceed (Background on this error at: https://sqlalche.me/e/20/bhk3)
+[2026-07-25 10:53:51,140] WARNING in app [127.0.0.1]: 400 Bad Request: 400 Bad Request: The CSRF token is missing.
+[2026-07-25 11:25:22,435] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:25:22,435] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:25:22,435] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:25:22,435] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:29:51,007] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:29:51,007] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:29:51,007] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:29:51,007] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:30:18,820] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:30:18,820] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:30:18,820] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:30:18,820] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:31:39,368] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 11:35:13,890] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:13,890] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:13,890] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:13,890] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:13,890] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:34,590] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:34,590] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:34,590] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:34,590] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:35:34,590] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 11:37:05,264] ERROR in app [127.0.0.1]: Database Query/Session error: (sqlite3.OperationalError) no such column: orders.delivery_slot
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT orders.id AS orders_id, orders.user_id AS orders_user_id, orders.recipient_name AS orders_recipient_name, orders.recipient_phone AS orders_recipient_phone, orders.delivery_village AS orders_delivery_village, orders.delivery_landmark AS orders_delivery_landmark, orders.delivery_pincode AS orders_delivery_pincode, orders.payment_method AS orders_payment_method, orders.payment_reference AS orders_payment_reference, orders.payment_status AS orders_payment_status, orders.order_status AS orders_order_status, orders.delivery_fee AS orders_delivery_fee, orders.total_amount AS orders_total_amount, orders.created_at AS orders_created_at, orders.delivery_slot AS orders_delivery_slot, orders.razorpay_order_id AS orders_razorpay_order_id, orders.razorpay_payment_id AS orders_razorpay_payment_id, orders.razorpay_signature AS orders_razorpay_signature, orders.refund_status AS orders_refund_status, orders.delivery_partner_id AS orders_delivery_partner_id, orders.delivery_otp AS orders_delivery_otp, orders.delivery_proof_url AS orders_delivery_proof_url, orders.driver_latitude AS orders_driver_latitude, orders.driver_longitude AS orders_driver_longitude 
+FROM orders) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-07-25 11:37:17,032] ERROR in app [127.0.0.1]: Database Query/Session error: (sqlite3.OperationalError) no such column: addresses.created_at
+[SQL: SELECT addresses.id AS addresses_id, addresses.user_id AS addresses_user_id, addresses.recipient_name AS addresses_recipient_name, addresses.recipient_phone AS addresses_recipient_phone, addresses.village AS addresses_village, addresses.landmark AS addresses_landmark, addresses.pincode AS addresses_pincode, addresses.is_default AS addresses_is_default, addresses.created_at AS addresses_created_at 
+FROM addresses 
+WHERE addresses.user_id = ?]
+[parameters: (2,)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-07-25 11:37:22,951] ERROR in app [127.0.0.1]: Database Query/Session error: (sqlite3.OperationalError) no such column: addresses.created_at
+[SQL: SELECT addresses.id AS addresses_id, addresses.user_id AS addresses_user_id, addresses.recipient_name AS addresses_recipient_name, addresses.recipient_phone AS addresses_recipient_phone, addresses.village AS addresses_village, addresses.landmark AS addresses_landmark, addresses.pincode AS addresses_pincode, addresses.is_default AS addresses_is_default, addresses.created_at AS addresses_created_at 
+FROM addresses 
+WHERE addresses.user_id = ? AND addresses.is_default = 1
+ LIMIT ? OFFSET ?]
+[parameters: (2, 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-07-25 11:37:26,364] ERROR in app [127.0.0.1]: Database Query/Session error: (sqlite3.OperationalError) no such column: addresses.created_at
+[SQL: SELECT addresses.id AS addresses_id, addresses.user_id AS addresses_user_id, addresses.recipient_name AS addresses_recipient_name, addresses.recipient_phone AS addresses_recipient_phone, addresses.village AS addresses_village, addresses.landmark AS addresses_landmark, addresses.pincode AS addresses_pincode, addresses.is_default AS addresses_is_default, addresses.created_at AS addresses_created_at 
+FROM addresses 
+WHERE addresses.user_id = ? AND addresses.is_default = 1
+ LIMIT ? OFFSET ?]
+[parameters: (2, 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-07-25 11:37:34,260] ERROR in app [127.0.0.1]: Database Query/Session error: (sqlite3.OperationalError) no such column: addresses.created_at
+[SQL: SELECT addresses.id AS addresses_id, addresses.user_id AS addresses_user_id, addresses.recipient_name AS addresses_recipient_name, addresses.recipient_phone AS addresses_recipient_phone, addresses.village AS addresses_village, addresses.landmark AS addresses_landmark, addresses.pincode AS addresses_pincode, addresses.is_default AS addresses_is_default, addresses.created_at AS addresses_created_at 
+FROM addresses 
+WHERE addresses.user_id = ? AND addresses.is_default = 1
+ LIMIT ? OFFSET ?]
+[parameters: (2, 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-07-25 17:25:44,566] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:25:44,566] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:25:44,566] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:25:44,566] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:25:44,566] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:27:54,411] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:28:46,892] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:28:47,101] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:28:56,336] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:28:57,851] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:29:10,990] WARNING in app [127.0.0.1]: 400 Bad Request: 400 Bad Request: The CSRF token is missing.
+[2026-07-25 17:29:12,875] WARNING in app [127.0.0.1]: 400 Bad Request: 400 Bad Request: The CSRF token is missing.
+[2026-07-25 17:35:09,253] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:35:09,253] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:35:09,253] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:35:09,253] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:35:09,253] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:37:14,686] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:12,416] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:12,554] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:23,853] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:23,870] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:31,254] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:31,361] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:36,161] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:39:36,265] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:40:08,132] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:40:21,785] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:42:18,318] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:43:18,099] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:52:28,265] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:52:28,265] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:52:28,265] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:52:28,265] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:52:28,265] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 17:53:52,776] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:07,594] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:25,778] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:25,877] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:37,752] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:47,497] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:47,601] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 17:54:52,622] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:12:31,033] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:06,683] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:14:34,844] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:16:13,763] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:16:13,779] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:10,238] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:18:57,761] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:18:57,779] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:23:30,109] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:24:15,214] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:24:15,229] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:43:10,142] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:44:03,129] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:45:28,271] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:48:16,450] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:50:33,186] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:50:33,196] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:51:02,877] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:51:07,141] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:13,966] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:53:50,935] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:53:50,956] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:57:09,426] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 18:58:39,834] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:58:39,845] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 18:58:42,413] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:00:56,262] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:00:56,262] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:08:57,906] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:10:00,493] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:10:00,493] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:11:42,796] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:13:26,110] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:13:26,139] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:18:35,260] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:18:35,288] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:32:37,065] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:32:37,066] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:34:16,463] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:34:16,466] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:38:04,623] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:38:04,625] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:50:40,495] ERROR in client [127.0.0.1]: Razorpay order creation failed: Authentication failed
+[2026-07-25 19:52:45,443] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:52:45,444] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:52:46,755] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:53:35,910] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:53:35,913] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:59:08,152] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 19:59:50,471] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 20:02:04,877] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 20:08:05,741] INFO in app [127.0.0.1]: 404 Not Found: 
+[2026-07-25 20:11:46,275] INFO in app [127.0.0.1]: 404 Not Found: 

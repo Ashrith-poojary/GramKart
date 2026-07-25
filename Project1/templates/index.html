@@ -1,0 +1,479 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Rural Quick Commerce Portal{% endblock %}
+
+{% block content %}
+<!-- Search query result header (if search active) -->
+{% if search_query %}
+<div class="mb-6">
+    <a href="{{ url_for('index') }}" class="text-slate-500 hover:text-primary-700 text-xs font-bold flex items-center gap-1 mb-2">
+        <i class="fa-solid fa-arrow-left"></i> View All Products
+    </a>
+    <h1 class="font-poppins font-black text-xl text-slate-900">Search results for "<span class="text-primary-600">{{ search_query }}</span>"</h1>
+    <p class="text-xs text-slate-400 font-semibold">{{ all_products|length }} products matching your search query</p>
+</div>
+{% endif %}
+
+<!-- Hero Carousel Section (Hide on search) -->
+{% if not search_query %}
+<div class="relative overflow-hidden rounded-3xl bg-slate-900 text-white mb-10 shadow-2xl min-h-[420px] flex items-center">
+    <div class="absolute inset-0 w-full h-full" id="hero-slides">
+        <div class="absolute inset-0 transition-opacity duration-1000 opacity-100" id="slide-1">
+            <img src="{{ url_for('static', filename='images/hero.png') }}" alt="Gramkart Rural Delivery" class="w-full h-full object-cover object-center opacity-45 md:opacity-75">
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/70 to-transparent z-10"></div>
+        </div>
+        <div class="absolute inset-0 transition-opacity duration-1000 opacity-0" id="slide-2">
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&auto=format&fit=crop&q=80" alt="Fresh Groceries" class="w-full h-full object-cover object-center opacity-30 md:opacity-50">
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent z-10"></div>
+        </div>
+    </div>
+    
+    <!-- Hero Floating Glass Card -->
+    <div class="relative z-20 px-6 py-8 md:py-10 md:px-10 max-w-lg mx-4 md:ml-12 rounded-3xl bg-slate-950/80 backdrop-blur-xl border border-white/10 shadow-2xl animate-float">
+        <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4 shadow-sm shadow-green-500/20">
+            <i class="fa-solid fa-bolt animate-pulse"></i> 10-Min Personal Delivery
+        </span>
+        <h1 class="font-poppins font-black text-3xl md:text-4xl tracking-tight leading-tight mb-4 text-white">
+            Fresh Village Groceries <br><span class="text-gradient-accent">Direct to Your Door</span>
+        </h1>
+        <p class="text-slate-350 text-xs md:text-sm mb-6 leading-relaxed">
+            Premium kitchen staples, fresh local harvest dairy, cleaning sprays, and daily essentials. Personally delivered by the shop owner to your doorstep.
+        </p>
+        <div class="flex flex-wrap gap-3">
+            <a href="#categories-section" class="btn-primary">
+                Explore Catalog <i class="fa-solid fa-arrow-down text-xs"></i>
+            </a>
+            <div class="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-2xl flex items-center gap-2.5">
+                <i class="fa-solid fa-truck-fast text-accent-500 text-base"></i>
+                <div class="text-left">
+                    <p class="text-[9px] text-slate-300 font-bold uppercase tracking-wider leading-none">Free Delivery</p>
+                    <p class="text-xs font-black text-white mt-0.5">Above ₹{{ free_delivery_threshold|int }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Trust Badges Bar (Hide on search) -->
+{% if not search_query %}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-green-500/10 text-primary-600 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-people-carry-box"></i>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold text-slate-900 font-poppins">Owner Handled</h3>
+            <p class="text-[9px] text-slate-450 font-semibold">100% Personal care & trust</p>
+        </div>
+    </div>
+    <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-accent-600 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold text-slate-900 font-poppins">Secure UPI / COD</h3>
+            <p class="text-[9px] text-slate-450 font-semibold">Verify and pay on receipt</p>
+        </div>
+    </div>
+    <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-green-500/10 text-primary-600 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-truck-ramp-box"></i>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold text-slate-900 font-poppins">No Minimum Buy</h3>
+            <p class="text-[9px] text-slate-450 font-semibold">Order single items anytime</p>
+        </div>
+    </div>
+    <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-accent-600 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-seedling"></i>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold text-slate-900 font-poppins">Fresh Stock</h3>
+            <p class="text-[9px] text-slate-450 font-semibold">Directly from farmer markets</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Categories Section (Hide on search) -->
+{% if not search_query %}
+<section id="categories-section" class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-primary-500 rounded-full"></span> Explore Categories
+        </h2>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+        {% for cat in categories %}
+        <a href="{{ url_for('category_detail', slug=cat.slug) }}" class="card-category">
+            <div class="w-16 h-16 rounded-2xl bg-white border border-slate-100/50 flex items-center justify-center mb-3 overflow-hidden zoom-img-container">
+                <img src="{{ cat.image_url if cat.image_url and cat.image_url != 'None' and cat.image_url != '' else '/static/images/placeholder.svg' }}" alt="{{ cat.name }}" class="w-full h-full object-cover zoom-img">
+            </div>
+            <span class="font-bold text-xs text-slate-800 group-hover:text-primary-700 transition-colors leading-tight line-clamp-1">{{ cat.name }}</span>
+            <span class="text-[9px] text-slate-450 font-bold mt-1 uppercase tracking-wider">{{ cat.products|length }} products</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Promotional Banners Grid (Hide on search) -->
+{% if not search_query %}
+<div class="grid md:grid-cols-2 gap-6 mb-12">
+    <div class="rounded-3xl p-6 bg-gradient-to-r from-emerald-800 to-green-600 text-white relative overflow-hidden shadow-lg group border border-green-800/10">
+        <div class="relative z-10 max-w-xs">
+            <span class="bg-white/15 backdrop-blur-md text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Super Saver Deal</span>
+            <h3 class="font-poppins font-black text-lg md:text-xl mt-3 leading-tight text-white">Save ₹50 on kitchen essentials</h3>
+            <p class="text-[11px] text-green-100 mt-2 font-medium">Use UPI payment mode to get instant cashback. T&C Apply.</p>
+            <a href="#essentials-section" class="inline-flex items-center gap-1.5 mt-5 bg-white text-slate-950 font-bold py-2.5 px-4 rounded-xl text-[10px] shadow-sm hover:scale-105 active:scale-95 transition-all">Shop Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <i class="fa-solid fa-tags absolute right-4 bottom-4 text-7xl text-white/5 group-hover:scale-110 transition-transform duration-350"></i>
+    </div>
+    <div class="rounded-3xl p-6 bg-gradient-to-r from-amber-600 to-orange-500 text-white relative overflow-hidden shadow-lg group border border-amber-800/10">
+        <div class="relative z-10 max-w-xs">
+            <span class="bg-white/15 backdrop-blur-md text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Dairy Drop</span>
+            <h3 class="font-poppins font-black text-lg md:text-xl mt-3 leading-tight text-white">Pure Milk & Butter at Farm Prices</h3>
+            <p class="text-[11px] text-amber-100 mt-2 font-medium">Personally collected from dairy societies every morning.</p>
+            <a href="{{ url_for('category_detail', slug='dairy-bread-eggs') }}" class="inline-flex items-center gap-1.5 mt-5 bg-white text-slate-950 font-bold py-2.5 px-4 rounded-xl text-[10px] shadow-sm hover:scale-105 active:scale-95 transition-all">Shop Fresh <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <i class="fa-solid fa-cow absolute right-4 bottom-4 text-7xl text-white/5 group-hover:scale-110 transition-transform duration-350"></i>
+    </div>
+</div>
+{% endif %}
+
+<!-- Discounted / Deals Section (Hide on search) -->
+{% if discounted_products and not search_query %}
+<section class="mb-12" id="essentials-section">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-accent-500 rounded-full"></span> Deals Of The Day
+        </h2>
+        <span class="text-[10px] font-extrabold text-accent-700 bg-accent-50 border border-accent-100 px-3 py-1.5 rounded-full uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Flash Sale active</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for prod in discounted_products %}
+        <div class="card-product">
+            <!-- Wishlist Heart Overlay -->
+            <button onclick="toggleWishlist({{ prod.id }}, this); event.preventDefault();" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm flex items-center justify-center text-slate-450 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ prod.id }}">
+                <i class="fa-regular fa-heart hover:text-rose-500"></i>
+            </button>
+            <!-- Product Top -->
+            <div class="relative mb-3">
+                {% set discount = ((prod.mrp - prod.price) / prod.mrp * 100) | int %}
+                <span class="absolute top-2 left-2 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-md z-10 shadow-sm">
+                    {{ discount }}% OFF
+                </span>
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-full h-full object-cover zoom-img">
+                </a>
+            </div>
+            <!-- Product Info -->
+            <div class="space-y-1">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">{{ prod.category.name }}</span>
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="font-bold text-xs md:text-sm text-slate-800 hover:text-primary-600 block line-clamp-1 transition-colors">{{ prod.name }}</a>
+                <p class="text-[10px] text-slate-400 font-semibold mb-2">{{ prod.unit }}</p>
+                
+                <div class="flex items-baseline gap-2 mb-3">
+                    <span class="font-poppins font-black text-sm md:text-base text-slate-950">₹{{ prod.price|int }}</span>
+                    <span class="text-xs text-slate-405 line-through font-medium">₹{{ prod.mrp|int }}</span>
+                </div>
+            </div>
+            <!-- Action Button -->
+            <div>
+                {% if prod.stock_count > 0 %}
+                <button onclick="addToCart(this, {{ prod.id }})" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-2.5 px-3 rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary-500/10">
+                    <i class="fa-solid fa-plus"></i> Add to Cart
+                </button>
+                {% else %}
+                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-3 rounded-xl text-[10px] cursor-not-allowed">
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- AI Personalized Recommendations Section (Hide on search) -->
+{% if recommended_products and not search_query %}
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-primary-500 rounded-full"></span> Recommended For You
+        </h2>
+        <span class="text-[10px] font-extrabold text-primary-700 bg-primary-50 border border-primary-100 px-3 py-1.5 rounded-full uppercase tracking-wider"><i class="fa-solid fa-sparkles mr-1 animate-pulse"></i> Personalized AI Selection</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for prod in recommended_products %}
+        <div class="card-product">
+            <!-- Wishlist Heart Overlay -->
+            <button onclick="toggleWishlist({{ prod.id }}, this); event.preventDefault();" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm flex items-center justify-center text-slate-450 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ prod.id }}">
+                <i class="fa-regular fa-heart hover:text-rose-500"></i>
+            </button>
+            <div class="relative mb-3">
+                {% if prod.mrp > prod.price %}
+                {% set discount = ((prod.mrp - prod.price) / prod.mrp * 100) | int %}
+                <span class="absolute top-2 left-2 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-md z-10 shadow-sm">
+                    {{ discount }}% OFF
+                </span>
+                {% endif %}
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-full h-full object-cover zoom-img">
+                </a>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">{{ prod.category.name }}</span>
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="font-bold text-xs md:text-sm text-slate-800 hover:text-primary-600 block line-clamp-1 transition-colors">{{ prod.name }}</a>
+                <p class="text-[10px] text-slate-400 font-semibold mb-2">{{ prod.unit }}</p>
+                <div class="flex items-baseline gap-2 mb-3">
+                    <span class="font-poppins font-black text-sm md:text-base text-slate-950">₹{{ prod.price|int }}</span>
+                    {% if prod.mrp > prod.price %}
+                    <span class="text-xs text-slate-405 line-through font-medium">₹{{ prod.mrp|int }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                {% if prod.stock_count > 0 %}
+                <button onclick="addToCart(this, {{ prod.id }})" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-2.5 px-3 rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary-500/10">
+                    <i class="fa-solid fa-plus"></i> Add to Cart
+                </button>
+                {% else %}
+                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-3 rounded-xl text-[10px] cursor-not-allowed">
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- AI Zone-based Trending Section (Hide on search) -->
+{% if trending_near_you and not search_query %}
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-accent-500 rounded-full"></span> Trending Near You
+        </h2>
+        <span class="text-[10px] font-extrabold text-accent-700 bg-accent-50 border border-accent-100 px-3 py-1.5 rounded-full uppercase tracking-wider"><i class="fa-solid fa-location-crosshairs mr-1 animate-pulse"></i> Popular in your zone</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for prod in trending_near_you %}
+        <div class="card-product">
+            <!-- Wishlist Heart Overlay -->
+            <button onclick="toggleWishlist({{ prod.id }}, this); event.preventDefault();" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm flex items-center justify-center text-slate-450 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ prod.id }}">
+                <i class="fa-regular fa-heart hover:text-rose-500"></i>
+            </button>
+            <div class="relative mb-3">
+                {% if prod.mrp > prod.price %}
+                {% set discount = ((prod.mrp - prod.price) / prod.mrp * 100) | int %}
+                <span class="absolute top-2 left-2 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-md z-10 shadow-sm">
+                    {{ discount }}% OFF
+                </span>
+                {% endif %}
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-full h-full object-cover zoom-img">
+                </a>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">{{ prod.category.name }}</span>
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="font-bold text-xs md:text-sm text-slate-800 hover:text-primary-600 block line-clamp-1 transition-colors">{{ prod.name }}</a>
+                <p class="text-[10px] text-slate-400 font-semibold mb-2">{{ prod.unit }}</p>
+                <div class="flex items-baseline gap-2 mb-3">
+                    <span class="font-poppins font-black text-sm md:text-base text-slate-950">₹{{ prod.price|int }}</span>
+                    {% if prod.mrp > prod.price %}
+                    <span class="text-xs text-slate-405 line-through font-medium">₹{{ prod.mrp|int }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                {% if prod.stock_count > 0 %}
+                <button onclick="addToCart(this, {{ prod.id }})" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-2.5 px-3 rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary-500/10">
+                    <i class="fa-solid fa-plus"></i> Add to Cart
+                </button>
+                {% else %}
+                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-3 rounded-xl text-[10px] cursor-not-allowed">
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- All Products / Daily Essentials Grid -->
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-primary-500 rounded-full"></span> 
+            {% if search_query %}Products Found{% else %}Trending Today{% endif %}
+        </h2>
+    </div>
+    {% if all_products %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for prod in all_products %}
+        <div class="card-product">
+            <!-- Wishlist Heart Overlay -->
+            <button onclick="toggleWishlist({{ prod.id }}, this); event.preventDefault();" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm flex items-center justify-center text-slate-455 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ prod.id }}">
+                <i class="fa-regular fa-heart hover:text-rose-500"></i>
+            </button>
+            <!-- Product Top -->
+            <div class="relative mb-3">
+                {% if prod.mrp > prod.price %}
+                {% set discount = ((prod.mrp - prod.price) / prod.mrp * 100) | int %}
+                <span class="absolute top-2 left-2 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-md z-10 shadow-sm">
+                    {{ discount }}% OFF
+                </span>
+                {% endif %}
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-full h-full object-cover zoom-img">
+                </a>
+            </div>
+            <!-- Product Info -->
+            <div class="space-y-1">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">{{ prod.category.name }}</span>
+                <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="font-bold text-xs md:text-sm text-slate-800 hover:text-primary-600 block line-clamp-1 transition-colors">{{ prod.name }}</a>
+                <p class="text-[10px] text-slate-400 font-semibold mb-2">{{ prod.unit }}</p>
+                
+                <div class="flex items-baseline gap-2 mb-3">
+                    <span class="font-poppins font-black text-sm md:text-base text-slate-950">₹{{ prod.price|int }}</span>
+                    {% if prod.mrp > prod.price %}
+                    <span class="text-xs text-slate-405 line-through font-medium">₹{{ prod.mrp|int }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Action Button -->
+            <div>
+                {% if prod.stock_count > 0 %}
+                <button onclick="addToCart(this, {{ prod.id }})" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-2.5 px-3 rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary-500/10">
+                    <i class="fa-solid fa-plus"></i> Add to Cart
+                </button>
+                {% else %}
+                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-3 rounded-xl text-[10px] cursor-not-allowed">
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card rounded-3xl p-12 text-center max-w-md mx-auto mt-6">
+        <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4 text-slate-350 text-2xl">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <h3 class="font-poppins font-bold text-md text-slate-900 mb-1">No products found</h3>
+        <p class="text-xs text-slate-400 mb-6">We couldn't find any products matching your search term. Try another keyword!</p>
+        <a href="{{ url_for('index') }}" class="bg-primary-500 hover:bg-primary-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-colors">View All Products</a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Customer Reviews Section (Hide on search) -->
+{% if not search_query %}
+<section class="mb-12">
+    <div class="text-center mb-10">
+        <span class="text-[9px] bg-primary-100 text-primary-700 border border-primary-200/50 font-black px-3 py-1.5 rounded-full uppercase tracking-wider">Testimonials</span>
+        <h2 class="font-poppins font-black text-xl md:text-2xl text-slate-950 mt-3.5">Loved by Village Residents</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-5 rounded-2xl border border-slate-100/50">
+            <div class="flex items-center gap-1.5 text-accent-500 text-xs mb-3">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed italic mb-4">"Very convenient for our family. Milk and bread arrive fresh every morning exactly at 7 AM. Saved many trips to the town market."</p>
+            <h4 class="text-xs font-black text-slate-800 font-poppins">- Ramesh Kumar (Rampur)</h4>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border border-slate-100/50">
+            <div class="flex items-center gap-1.5 text-accent-500 text-xs mb-3">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed italic mb-4">"Delivery fee is very low, and payment by UPI scanning is extremely simple. The shop owner is very polite and friendly."</p>
+            <h4 class="text-xs font-black text-slate-800 font-poppins">- Sunita Devi (Shivpur)</h4>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border border-slate-100/50">
+            <div class="flex items-center gap-1.5 text-accent-500 text-xs mb-3">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed italic mb-4">"Best app for daily grocery needs. We order detergent, pulses and fresh potatoes. Delivery is fast and items are clean."</p>
+            <h4 class="text-xs font-black text-slate-800 font-poppins">- Harish Singh (Pipariya)</h4>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto Slideshow Logic
+    let currentSlide = 1;
+    const totalSlides = 2;
+    setInterval(() => {
+        const activeSlide = document.getElementById(`slide-${currentSlide}`);
+        if (!activeSlide) return;
+        activeSlide.classList.replace('opacity-100', 'opacity-0');
+        
+        currentSlide = currentSlide === totalSlides ? 1 : currentSlide + 1;
+        
+        const nextSlide = document.getElementById(`slide-${currentSlide}`);
+        nextSlide.classList.replace('opacity-0', 'opacity-100');
+    }, 5000);
+
+    // Sync wishlist buttons on load
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        const id = parseInt(btn.getAttribute('data-product-id'));
+        if (isInWishlist(id)) {
+            btn.innerHTML = '<i class="fa-solid fa-heart text-rose-500 scale-110"></i>';
+        }
+    });
+
+    // Add to Cart Fetch Handler
+    function addToCart(btn, productId) {
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Adding...`;
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json().then(data => ({ status: response.status, data })))
+        .then(({ status, data }) => {
+            if (status === 200) {
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Added!`;
+                
+                // Update cart badges
+                const badges = document.querySelectorAll('.relative .bg-accent-500, #cart-header-btn span');
+                badges.forEach(badge => {
+                    badge.innerText = data.cart_count;
+                    badge.classList.remove('hidden');
+                });
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 1000);
+            } else {
+                alert(data.message || 'Error adding to cart.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+</script>
+{% endblock %}

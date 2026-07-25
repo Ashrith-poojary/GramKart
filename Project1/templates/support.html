@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Help & Support{% endblock %}
+
+{% block content %}
+<h1 class="font-poppins font-black text-2xl md:text-3xl text-slate-900 tracking-tight mb-8">Customer Support Center</h1>
+
+<div class="grid md:grid-cols-3 gap-8 items-start mb-12">
+    <!-- Left: Contact Details Cards (Col Span 1) -->
+    <div class="space-y-6">
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 shadow-md space-y-4">
+            <h3 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-2">Direct Contact</h3>
+            <div class="space-y-3 text-xs">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-green-50 text-green-600 flex items-center justify-center"><i class="fa-brands fa-whatsapp text-lg"></i></span>
+                    <div>
+                        <span class="font-bold text-slate-800 block">WhatsApp Support</span>
+                        <a href="https://wa.me/919999999999" target="_blank" class="text-[10px] text-primary-600 font-bold hover:underline">Chat via WhatsApp</a>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center"><i class="fa-regular fa-envelope text-base"></i></span>
+                    <div>
+                        <span class="font-bold text-slate-800 block">Email Address</span>
+                        <a href="mailto:support@gramkart.com" class="text-[10px] text-primary-600 font-bold hover:underline">support@gramkart.com</a>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-headset text-base"></i></span>
+                    <div>
+                        <span class="font-bold text-slate-800 block">Owner Helpline</span>
+                        <span class="text-[10px] text-slate-500 font-bold font-mono">+91 98765 43210</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Chat Widget Mockup -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 shadow-md space-y-4">
+            <h3 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest border-b border-slate-105 pb-2"><i class="fa-solid fa-comments text-primary-500 mr-1 animate-pulse"></i> Live Chat</h3>
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center py-6 space-y-3">
+                <p class="text-xs text-slate-550 leading-relaxed font-bold uppercase">Online & Ready to Help</p>
+                <button onclick="alert('Connecting you with the store owner... Please wait.')" class="w-full bg-slate-900 hover:bg-slate-950 text-white font-bold py-2.5 rounded-xl text-xs transition-colors">Start Live Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: FAQs & Submit Ticket (Col Span 2) -->
+    <div class="md:col-span-2 space-y-6">
+        <!-- FAQ Accordion -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 shadow-md space-y-4">
+            <h2 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-question text-primary-500"></i> Frequently Asked Questions
+            </h2>
+            
+            <div class="space-y-3.5">
+                <details class="group bg-slate-50 border border-slate-100 rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-xs text-slate-800 focus:outline-none">
+                        <span>How fast is the delivery?</span>
+                        <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                    </summary>
+                    <p class="text-xs text-slate-500 font-semibold mt-3.5 leading-relaxed">
+                        For local villages, the store owner personally drives the delivery vehicle. Orders are typically fulfilled within 15 to 30 minutes depending on distance and road conditions.
+                    </p>
+                </details>
+
+                <details class="group bg-slate-50 border border-slate-100 rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-xs text-slate-800 focus:outline-none">
+                        <span>What payment modes are supported?</span>
+                        <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                    </summary>
+                    <p class="text-xs text-slate-500 font-semibold mt-3.5 leading-relaxed">
+                        We support Cash on Delivery (COD), UPI Instant Transfers (where you scan the QR and enter UTR), as well as secure checkout via Razorpay supporting cards and wallets.
+                    </p>
+                </details>
+
+                <details class="group bg-slate-50 border border-slate-100 rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-xs text-slate-800 focus:outline-none">
+                        <span>What is the return policy?</span>
+                        <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down text-[10px]"></i></span>
+                    </summary>
+                    <p class="text-xs text-slate-500 font-semibold mt-3.5 leading-relaxed">
+                        If any grocery item (fruits, vegetables, or dairy products) arrives damaged or stale, please notify the owner within 24 hours of delivery for an instant replacement or refund.
+                    </p>
+                </details>
+            </div>
+        </div>
+
+        <!-- Submit Support Ticket -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100/50 shadow-md space-y-4">
+            <h2 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-envelope-open-text text-accent-500"></i> Submit a Support Ticket
+            </h2>
+            
+            <form onsubmit="event.preventDefault(); alert('Support ticket submitted successfully. We will contact you soon!'); this.reset();" class="space-y-4 bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="sup-name" class="form-label">Full Name</label>
+                        <input type="text" id="sup-name" required class="form-input !text-xs !py-2" placeholder="Enter name">
+                    </div>
+                    <div>
+                        <label for="sup-phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="sup-phone" required pattern="[0-9]{10}" class="form-input !text-xs !py-2" placeholder="10-digit number">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="sup-subject" class="form-label">Subject</label>
+                    <input type="text" id="sup-subject" required class="form-input !text-xs !py-2" placeholder="e.g. Missing Item or Payment Refund">
+                </div>
+
+                <div>
+                    <label for="sup-msg" class="form-label">Message details *</label>
+                    <textarea id="sup-msg" rows="3" required class="form-input !text-xs !py-2" placeholder="Describe your query in detail..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full btn-primary">Submit Ticket</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

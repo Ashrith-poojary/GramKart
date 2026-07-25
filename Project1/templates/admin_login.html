@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Admin Login{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12">
+    <!-- Card Container (Indigo/Slate Admin Theme) -->
+    <div class="bg-slate-950 text-white rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-900/50">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-indigo-650 flex items-center justify-center text-white shadow-lg mx-auto mb-3 animate-float">
+                <i class="fa-solid fa-user-shield text-xl"></i>
+            </div>
+            <h1 class="font-poppins font-black text-xl tracking-tight text-white">Owner Admin Portal</h1>
+            <p class="text-[9px] text-slate-450 font-bold uppercase tracking-wider mt-1">Gramkart Management</p>
+        </div>
+
+        <form action="{{ url_for('admin.admin_login_gate') }}" method="POST" class="space-y-5" onsubmit="showLoadingBtn(this)">
+            <div>
+                <label for="admin_id" class="form-label !text-slate-400">Admin ID</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                        <i class="fa-solid fa-fingerprint text-xs"></i>
+                    </span>
+                    <input type="text" id="admin_id" name="admin_id" required class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-3 text-xs md:text-sm focus:outline-none focus:border-indigo-500 focus:bg-slate-950 transition-all font-semibold text-white placeholder-slate-550" placeholder="Enter Admin ID">
+                </div>
+            </div>
+
+            <div>
+                <label for="admin_password" class="form-label !text-slate-400">Password</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                    </span>
+                    <input type="password" id="admin_password" name="admin_password" required class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-10 py-3 text-xs md:text-sm focus:outline-none focus:border-indigo-500 focus:bg-slate-950 transition-all font-semibold text-white placeholder-slate-550" placeholder="Enter Password">
+                    <button type="button" onclick="togglePasswordVisibility('admin_password', this)" class="absolute right-3.5 inset-y-0 flex items-center text-slate-500 focus:outline-none"><i class="fa-solid fa-eye text-xs"></i></button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 text-xs text-slate-400 font-semibold cursor-pointer">
+                    <input type="checkbox" name="remember" value="true" class="rounded border-slate-800 bg-slate-900 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-950 w-4 h-4">
+                    Remember Session
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-indigo-550 to-indigo-650 hover:from-indigo-650 hover:to-indigo-750 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md shadow-indigo-600/10">
+                Log In to Dashboard
+            </button>
+        </form>
+        
+        <div class="text-center mt-6">
+            <a href="{{ url_for('index') }}" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider"><i class="fa-solid fa-arrow-left mr-1"></i> Customer Store</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePasswordVisibility(fieldId, btn) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash text-xs"></i>';
+    } else {
+        field.type = 'password';
+        btn.innerHTML = '<i class="fa-solid fa-eye text-xs"></i>';
+    }
+}
+
+function showLoadingBtn(form) {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Loading Dashboard...`;
+    }
+}
+</script>
+{% endblock %}

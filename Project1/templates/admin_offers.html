@@ -1,0 +1,151 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Campaign Offers{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Campaign Offers</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Schedule weekend events, category markdowns, flash sales, and buy-one-get-one offers.</p>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+    <!-- List of Campaigns (Col Span 2) -->
+    <div class="md:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-808 rounded-3xl p-5 shadow-sm overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    <th class="py-3">Campaign Info</th>
+                    <th class="py-3">Event Type</th>
+                    <th class="py-3">Discount Details</th>
+                    <th class="py-3">Scheduled Dates</th>
+                    <th class="py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-xs font-semibold text-slate-700 dark:text-slate-350">
+                {% if offers %}
+                    {% for o in offers %}
+                    <tr class="border-b border-slate-100/60 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-950/20">
+                        <td class="py-4">
+                            <h4 class="font-bold text-slate-900 dark:text-white leading-snug">{{ o.name }}</h4>
+                            <p class="text-[9px] text-slate-400">
+                                Target: 
+                                {% if o.product_id %}Product (ID: #{{ o.product_id }})
+                                {% elif o.category_id %}Category (ID: #{{ o.category_id }})
+                                {% elif o.brand %}Brand ({{ o.brand }})
+                                {% else %}Storewide Discount
+                                {% endif %}
+                            </p>
+                        </td>
+                        <td class="py-4">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 border border-indigo-100 dark:border-indigo-900 px-2 py-0.5 rounded text-[10px] font-bold uppercase">{{ o.offer_type }}</span>
+                        </td>
+                        <td class="py-4 font-bold text-slate-950 dark:text-white">
+                            {{ o.discount_percent|int }}% OFF
+                        </td>
+                        <td class="py-4">
+                            <p class="text-slate-900 dark:text-white">{{ o.start_date.strftime('%d %b') }} - {{ o.end_date.strftime('%d %b %Y') }}</p>
+                            {% if o.end_date < datetime.utcnow() %}
+                                <span class="bg-rose-50 dark:bg-rose-950/20 text-rose-600 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Expired</span>
+                            {% elif not o.is_active %}
+                                <span class="bg-slate-100 dark:bg-slate-800 text-slate-450 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Inactive</span>
+                            {% else %}
+                                <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Running</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <form action="{{ url_for('admin.admin_offer_toggle', offer_id=o.id) }}" method="POST" class="inline">
+                                    <button type="submit" class="text-xs font-bold {% if o.is_active %}text-slate-500 hover:text-slate-700{% else %}text-emerald-600 hover:underline{% endif %}">
+                                        {% if o.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin.admin_offer_delete', offer_id=o.id) }}" method="POST" onsubmit="return confirm('Delete this offer campaign?');" class="inline">
+                                    <button type="submit" class="text-xs text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-slate-450 font-semibold">No campaigns scheduled.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Create Campaign Form (Col Span 1) -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-black text-slate-850 dark:text-slate-205 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-plus-circle mr-1 text-green-500"></i> Schedule Campaign</h3>
+        
+        <form action="{{ url_for('admin.admin_offers') }}" method="POST" class="space-y-3.5">
+            <div>
+                <label for="o-name" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Campaign Event Name *</label>
+                <input type="text" id="o-name" name="name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Diwali Dhamaka 2026">
+            </div>
+
+            <div>
+                <label for="o-type" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Offer Type</label>
+                <select id="o-type" name="offer_type" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-805 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-bold focus:outline-none">
+                    <option value="Festival Offer">Festival Offer</option>
+                    <option value="Flash Sale">Flash Sale</option>
+                    <option value="Weekend Sale">Weekend Sale</option>
+                    <option value="Category Offer">Category Offer</option>
+                    <option value="Brand Offer">Brand Offer</option>
+                    <option value="BOGO">Buy One Get One (BOGO)</option>
+                    <option value="Combo Offer">Combo Offer</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="o-discount" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Discount (%) *</label>
+                    <input type="number" id="o-discount" name="discount_percent" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. 20">
+                </div>
+                <div>
+                    <label for="o-brand" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Brand filter (Optional)</label>
+                    <input type="text" id="o-brand" name="brand" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Fortune">
+                </div>
+            </div>
+
+            <div>
+                <label for="o-prod" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Linked Product (Optional)</label>
+                <select id="o-prod" name="product_id" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-805 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-semibold focus:outline-none">
+                    <option value="">Storewide / None</option>
+                    {% for p in products %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="o-cat" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Linked Category (Optional)</label>
+                <select id="o-cat" name="category_id" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-semibold focus:outline-none">
+                    <option value="">None</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="o-start" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Start Date *</label>
+                    <input type="date" id="o-start" name="start_date" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+                <div>
+                    <label for="o-end" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">End Date *</label>
+                    <input type="date" id="o-end" name="end_date" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                Launch Marketing Offer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

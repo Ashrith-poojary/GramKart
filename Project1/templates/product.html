@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - {{ product.name }}{% endblock %}
+
+{% block content %}
+<!-- Back to category -->
+<div class="mb-4">
+    <a href="{{ url_for('category_detail', slug=product.category.slug) }}" class="text-slate-500 hover:text-primary-600 text-xs font-bold flex items-center gap-1">
+        <i class="fa-solid fa-arrow-left"></i> Back to {{ product.category.name }}
+    </a>
+</div>
+
+<!-- Product Details Layout -->
+<div class="glass-card rounded-3xl p-6 md:p-10 max-w-4xl mx-auto shadow-xl mb-12">
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+        <!-- Left: Image Gallery & Wishlist Overlay -->
+        <div class="space-y-4">
+            <div class="aspect-square rounded-2xl overflow-hidden bg-white border border-slate-100 relative shadow-sm zoom-img-container">
+                {% if product.mrp > product.price %}
+                {% set discount = ((product.mrp - product.price) / product.mrp * 100) | int %}
+                <span class="absolute top-4 left-4 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-xs font-extrabold px-3 py-1 rounded-lg z-10 shadow-sm">
+                    {{ discount }}% SAVE
+                </span>
+                {% endif %}
+                <!-- Wishlist Heart Overlay -->
+                <button onclick="toggleWishlist({{ product.id }}, this); event.preventDefault();" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-md flex items-center justify-center text-slate-450 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ product.id }}">
+                    <i class="fa-regular fa-heart text-lg hover:text-rose-500"></i>
+                </button>
+                <img id="main-product-img" src="{{ product.image_url if product.image_url and product.image_url != 'None' and product.image_url != '' else '/static/images/placeholder.svg' }}" alt="{{ product.name }}" class="w-full h-full object-cover zoom-img">
+            </div>
+            
+            <!-- Gallery Thumbnails (Static Carousel placeholder) -->
+            <div class="flex gap-3">
+                <button onclick="setProductImage('{{ product.image_url if product.image_url and product.image_url != 'None' and product.image_url != '' else '/static/images/placeholder.svg' }}')" class="w-16 h-16 rounded-xl border-2 border-primary-500 overflow-hidden bg-white/60 p-0.5 focus:outline-none">
+                    <img src="{{ product.image_url if product.image_url and product.image_url != 'None' and product.image_url != '' else '/static/images/placeholder.svg' }}" class="w-full h-full object-cover rounded-lg">
+                </button>
+                <button onclick="setProductImage('https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80')" class="w-16 h-16 rounded-xl border border-slate-200/50 hover:border-primary-500/50 overflow-hidden bg-white/60 p-0.5 focus:outline-none">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80" class="w-full h-full object-cover rounded-lg">
+                </button>
+            </div>
+        </div>
+        
+        <!-- Right: Product Specs & Purchase -->
+        <div class="space-y-6">
+            <div>
+                <span class="text-[10px] text-primary-700 bg-primary-50 border border-primary-100/50 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider block w-fit mb-3">{{ product.category.name }}</span>
+                <h1 class="font-poppins font-black text-2xl md:text-3xl text-slate-900 leading-tight mb-2">{{ product.name }}</h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Unit size: {{ product.unit }}</p>
+            </div>
+            
+            <hr class="border-slate-100">
+            
+            <!-- Pricing -->
+            <div class="flex items-baseline gap-3">
+                <span class="font-poppins font-black text-3xl text-slate-950">₹{{ product.price|int }}</span>
+                {% if product.mrp > product.price %}
+                <span class="text-md text-slate-400 line-through font-medium">MRP: ₹{{ product.mrp|int }}</span>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100/50 px-2.5 py-1 rounded-md">Save ₹{{ (product.mrp - product.price)|int }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Stock Status -->
+            <div>
+                {% if product.stock_count > 5 %}
+                <span class="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-150 px-3 py-1.5 rounded-full">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> In Stock
+                </span>
+                {% elif product.stock_count > 0 %}
+                <span class="inline-flex items-center gap-1.5 text-xs text-amber-700 font-bold bg-amber-50 border border-amber-150 px-3 py-1.5 rounded-full animate-pulse">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Only {{ product.stock_count }} units left!
+                </span>
+                {% else %}
+                <span class="inline-flex items-center gap-1.5 text-xs text-rose-700 font-bold bg-rose-50 border border-rose-150 px-3 py-1.5 rounded-full">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Out of Stock
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex flex-wrap gap-4">
+                {% if product.stock_count > 0 %}
+                <button id="add-detail-btn" onclick="addToCart(this, {{ product.id }})" class="bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-3.5 px-8 rounded-2xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-500/10">
+                    <i class="fa-solid fa-cart-plus text-base"></i> Add to Cart
+                </button>
+                <button onclick="buyNow(this, {{ product.id }})" class="bg-slate-900 hover:bg-slate-950 text-white font-bold py-3.5 px-8 rounded-2xl text-xs transition-all flex items-center justify-center gap-2">
+                    Buy Now
+                </button>
+                {% else %}
+                <button disabled class="w-full md:w-auto bg-slate-100 text-slate-400 font-bold py-3.5 px-8 rounded-2xl text-xs cursor-not-allowed">
+                    Currently Unavailable
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Specifications Table -->
+            <div class="bg-slate-50/50 rounded-2xl border border-slate-100/50 p-4">
+                <h3 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-wider mb-3">Specifications</h3>
+                <div class="space-y-2">
+                    <div class="grid grid-cols-3 text-xs">
+                        <span class="text-slate-450 font-bold">Category</span>
+                        <span class="col-span-2 text-slate-800 font-semibold">{{ product.category.name }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 text-xs">
+                        <span class="text-slate-450 font-bold">Unit Weight</span>
+                        <span class="col-span-2 text-slate-800 font-semibold">{{ product.unit }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 text-xs">
+                        <span class="text-slate-455 font-bold">Standard Delivery</span>
+                        <span class="col-span-2 text-slate-800 font-semibold"><i class="fa-solid fa-truck-fast text-primary-500 mr-1"></i> Personally Handled Delivery</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if product.description %}
+            <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
+                <h3 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-wider mb-2">Product Description</h3>
+                <p class="text-xs text-slate-600 leading-relaxed font-semibold">{{ product.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Verified Reviews & Submissions -->
+<div class="glass-card rounded-3xl p-6 md:p-10 max-w-4xl mx-auto shadow-xl mb-12 border border-slate-100/50">
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+        <!-- Left: Customer Reviews list -->
+        <div class="space-y-6">
+            <h2 class="font-poppins font-black text-sm text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center justify-between">
+                <span>Customer Reviews</span>
+                <span class="text-xs text-primary-650 font-bold bg-primary-50 px-2 py-0.5 rounded border border-primary-100/50">{{ avg_rating }} <i class="fa-solid fa-star text-[10px]"></i></span>
+            </h2>
+
+            {% if reviews %}
+            <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                {% for rev in reviews %}
+                <div class="border-b border-slate-100/80 pb-4 space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-800">{{ rev.user.name }}</span>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider bg-slate-100 border border-slate-200/40 px-1.5 py-0.5 rounded flex items-center gap-0.5"><i class="fa-solid fa-shield-check text-emerald-600 text-[10px]"></i> Verified Buyer</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-semibold">{{ rev.created_at.strftime('%d %b %Y') }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1 text-[10px] text-amber-500">
+                        {% for i in range(1, 6) %}
+                            {% if i <= rev.rating %}
+                            <i class="fa-solid fa-star"></i>
+                            {% else %}
+                            <i class="fa-regular fa-star text-slate-300"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <p class="text-xs text-slate-650 leading-relaxed font-semibold">{{ rev.comment }}</p>
+
+                    {% if rev.image_url %}
+                    <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                        <img src="{{ rev.image_url }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endif %}
+
+                    <!-- Like and replies -->
+                    <div class="flex items-center gap-3 text-[10px] font-bold text-slate-400">
+                        <button onclick="likeReview({{ rev.id }}, this)" class="hover:text-primary-650 flex items-center gap-1">
+                            <i class="fa-regular fa-thumbs-up"></i> Helpful (<span class="like-count">{{ rev.likes }}</span>)
+                        </button>
+                    </div>
+
+                    {% if rev.admin_reply %}
+                    <div class="bg-indigo-50/40 border border-indigo-100/40 rounded-xl p-3 text-[11px] text-indigo-900 mt-2">
+                        <span class="font-bold block mb-0.5"><i class="fa-solid fa-reply mr-1"></i> Owner Reply:</span>
+                        <p class="font-medium">{{ rev.admin_reply }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-400 font-bold text-center py-8">No reviews for this product yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Right: Verified Purchase Review Form -->
+        <div class="space-y-4">
+            <h3 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-primary-500"></i> Write a Review
+            </h3>
+
+            {% if has_purchased %}
+            <form action="/product/{{ product.id }}/review" method="POST" class="space-y-4 bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
+                <div>
+                    <label class="form-label !mb-2">Your Rating *</label>
+                    <div class="flex gap-2 text-slate-300 text-lg" id="star-selector">
+                        <input type="hidden" name="rating" id="review-rating-input" required>
+                        {% for i in range(1, 6) %}
+                        <button type="button" onclick="selectReviewStar({{ i }})" class="hover:text-amber-500 focus:outline-none transition-colors star-btn" data-star="{{ i }}"><i class="fa-regular fa-star"></i></button>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <label for="comment" class="form-label">Review Comment *</label>
+                    <textarea id="comment" name="comment" rows="3" required class="form-input !text-xs !py-2" placeholder="Tell other villagers about this product..."></textarea>
+                </div>
+                <div>
+                    <label for="review_img" class="form-label">Attach Image Link (Optional)</label>
+                    <input type="text" id="review_img" name="image_url" class="form-input !text-xs !py-2" placeholder="Paste review image URL">
+                </div>
+                <button type="submit" class="w-full btn-primary !py-2.5">Submit Review</button>
+            </form>
+            {% else %}
+            <div class="bg-slate-50 border border-slate-100 p-6 rounded-3xl text-center space-y-2.5">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto text-xs">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h4 class="font-bold text-xs text-slate-800">Review Form Locked</h4>
+                <p class="text-[10px] text-slate-450 leading-relaxed font-bold uppercase">Only customer accounts with verified completed delivery of this product can write a review.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Frequently bought together / Related products recommendations -->
+<section class="max-w-4xl mx-auto mb-16">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-poppins font-black text-lg md:text-xl text-slate-900 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-5 bg-primary-500 rounded-full"></span> Frequently Bought Together
+        </h2>
+        <span class="text-[10px] font-extrabold text-primary-700 bg-primary-50 border border-primary-100 px-3 py-1.5 rounded-full uppercase tracking-wider"><i class="fa-solid fa-sparkles mr-1 animate-pulse"></i> Frequently Co-purchased</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {% if frequently_bought %}
+            {% for prod in frequently_bought %}
+            <div class="card-product">
+                <!-- Wishlist Heart Overlay -->
+                <button onclick="toggleWishlist({{ prod.id }}, this); event.preventDefault();" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white backdrop-blur-md shadow-sm flex items-center justify-center text-slate-450 z-10 transition-transform hover:scale-105 active:scale-95 focus:outline-none wishlist-btn" data-product-id="{{ prod.id }}">
+                    <i class="fa-regular fa-heart hover:text-rose-500"></i>
+                </button>
+                <div class="relative mb-3">
+                    {% if prod.mrp > prod.price %}
+                    {% set discount = ((prod.mrp - prod.price) / prod.mrp * 100) | int %}
+                    <span class="absolute top-2 left-2 bg-gradient-to-r from-accent-500 to-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-md z-10 shadow-sm">
+                        {{ discount }}% OFF
+                    </span>
+                    {% endif %}
+                    <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-full h-full object-cover zoom-img">
+                    </a>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">{{ prod.category.name }}</span>
+                    <a href="{{ url_for('product_detail', product_id=prod.id) }}" class="font-bold text-xs md:text-sm text-slate-800 hover:text-primary-600 block line-clamp-1 transition-colors">{{ prod.name }}</a>
+                    <p class="text-[10px] text-slate-400 font-semibold mb-2">{{ prod.unit }}</p>
+                    <div class="flex items-baseline gap-2 mb-3">
+                        <span class="font-poppins font-black text-sm md:text-base text-slate-950">₹{{ prod.price|int }}</span>
+                        {% if prod.mrp > prod.price %}
+                        <span class="text-xs text-slate-450 line-through font-medium">₹{{ prod.mrp|int }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    {% if prod.stock_count > 0 %}
+                    <button onclick="addToCart(this, {{ prod.id }})" class="w-full bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-2.5 px-3 rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary-500/10">
+                        <i class="fa-solid fa-plus"></i> Add to Cart
+                    </button>
+                    {% else %}
+                    <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-3 rounded-xl text-[10px] cursor-not-allowed">
+                        Out of Stock
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-xs text-slate-400 font-semibold py-4 text-center col-span-full">No co-purchased items matching this product.</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Mobile Sticky Bottom Buy Bar (Shows on mobile when viewing product details) -->
+<div class="sm:hidden fixed bottom-14 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/40 p-3 shadow-lg flex items-center justify-between z-30">
+    <div class="text-left">
+        <p class="text-[9px] text-slate-400 font-bold uppercase">Price</p>
+        <span class="font-poppins font-black text-sm text-slate-950">₹{{ product.price|int }}</span>
+    </div>
+    <div class="flex gap-2">
+        {% if product.stock_count > 0 %}
+        <button onclick="addToCart(this, {{ product.id }})" class="bg-gradient-to-r from-primary-500 to-primary-650 text-white font-bold py-2 px-4 rounded-xl text-[10px] shadow-sm"><i class="fa-solid fa-cart-plus mr-1"></i> Add</button>
+        <button onclick="buyNow(this, {{ product.id }})" class="bg-slate-950 text-white font-bold py-2 px-4 rounded-xl text-[10px]">Buy Now</button>
+        {% else %}
+        <span class="text-xs text-rose-600 font-bold bg-rose-50 border border-rose-100 px-3 py-2 rounded-xl">Out of stock</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Sync wishlist buttons on load
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        const id = parseInt(btn.getAttribute('data-product-id'));
+        if (isInWishlist(id)) {
+            btn.innerHTML = '<i class="fa-solid fa-heart text-rose-500 text-lg"></i>';
+        }
+    });
+
+    // Main image selector switcher
+    function setProductImage(url) {
+        const mainImg = document.getElementById('main-product-img');
+        if (mainImg) {
+            mainImg.src = url;
+            // Highlight thumbnail
+            const btn = event.currentTarget;
+            btn.parentElement.querySelectorAll('button').forEach(b => b.className = b.className.replace('border-primary-500', 'border-slate-200/50'));
+            btn.className = btn.className.replace('border-slate-200/50', 'border-primary-500');
+        }
+    }
+
+    // Populate related products from client-side catalog array
+    const relatedBox = document.getElementById('related-products-box');
+    if (relatedBox) {
+        const currentCategory = "{{ product.category.name }}";
+        const currentId = {{ product.id }};
+        
+        // Filter catalog items that share the same category and are not the current product
+        const matches = catalog.filter(p => p.category === currentCategory && p.id !== currentId).slice(0, 4);
+        
+        if (matches.length > 0) {
+            relatedBox.innerHTML = '';
+            matches.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-product';
+                card.innerHTML = `
+                    <div class="relative mb-3">
+                        <a href="/product/${item.id}" class="block aspect-square rounded-xl overflow-hidden bg-slate-50 border border-slate-100/50 zoom-img-container">
+                            <img src="${item.img}" alt="" class="w-full h-full object-cover zoom-img">
+                        </a>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="/product/${item.id}" class="font-bold text-xs text-slate-800 hover:text-primary-600 block line-clamp-1">${item.name}</a>
+                        <p class="text-[9px] text-slate-450 font-semibold mb-2">${item.unit}</p>
+                        <p class="font-poppins font-black text-xs text-slate-900">₹${item.price}</p>
+                    </div>
+                `;
+                relatedBox.appendChild(card);
+            });
+        } else {
+            relatedBox.innerHTML = `<p class="text-xs text-slate-400 font-semibold py-4 text-center col-span-full">No related items found</p>`;
+        }
+    }
+
+    // Buy Now instantly adds to cart and forwards to checkout
+    function buyNow(btn, productId) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json().then(data => ({ status: response.status, data })))
+        .then(({ status, data }) => {
+            if (status === 200) {
+                window.location.href = "{{ url_for('checkout') }}";
+            } else {
+                alert(data.message || 'Error buying product.');
+                btn.disabled = false;
+                btn.innerHTML = 'Buy Now';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.disabled = false;
+            btn.innerHTML = 'Buy Now';
+        });
+    }
+
+    // Add to Cart fetch handler
+    function addToCart(btn, productId) {
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Adding...`;
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json().then(data => ({ status: response.status, data })))
+        .then(({ status, data }) => {
+            if (status === 200) {
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Added!`;
+                // Update cart badges
+                const badges = document.querySelectorAll('.relative .bg-accent-500, #cart-header-btn span');
+                badges.forEach(badge => {
+                    badge.innerText = data.cart_count;
+                    badge.classList.remove('hidden');
+                });
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 1000);
+            } else {
+                alert(data.message || 'Error adding to cart.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+
+    function selectReviewStar(star) {
+        document.getElementById('review-rating-input').value = star;
+        const btns = document.querySelectorAll('.star-btn');
+        btns.forEach(btn => {
+            const sVal = parseInt(btn.getAttribute('data-star'));
+            if (sVal <= star) {
+                btn.innerHTML = '<i class="fa-solid fa-star text-amber-500"></i>';
+            } else {
+                btn.innerHTML = '<i class="fa-regular fa-star text-slate-300"></i>';
+            }
+        });
+    }
+
+    function likeReview(reviewId, btn) {
+        btn.disabled = true;
+        fetch(`/api/review/like/${reviewId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = `<i class="fa-solid fa-thumbs-up text-primary-500"></i> Helpful (${data.likes})`;
+            }
+        });
+    }
+</script>
+{% endblock %}

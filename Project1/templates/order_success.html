@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Gramkart - Order Success{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto text-center py-8">
+    <!-- Success Badge -->
+    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg shadow-emerald-500/10">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    
+    <h1 class="font-poppins font-black text-2xl md:text-3xl text-slate-900 tracking-tight mb-2">Order Confirmed!</h1>
+    <p class="text-xs text-slate-500 mb-8">Thank you, your order has been received. Order ID: <span class="font-bold text-slate-800">#{{ order.id }}</span></p>
+
+    <!-- Payment Block -->
+    {% if order.payment_method == 'UPI' %}
+    <div class="glass-card rounded-3xl p-6 border border-slate-100/50 mb-8 space-y-6 text-left max-w-md mx-auto">
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 text-accent-500 flex items-center justify-center">
+                <i class="fa-solid fa-qrcode text-lg"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-xs text-slate-900 font-poppins">Scan & Pay via UPI</h3>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total: ₹{{ order.total_amount|int }}</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center bg-slate-50 rounded-2xl p-4 border border-slate-150">
+            {% set qr_payload = "upi://pay?pa=" ~ upi_id ~ "&pn=Gramkart&am=" ~ order.total_amount ~ "&cu=INR" %}
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ qr_payload|urlencode }}" alt="UPI Payment QR Code" class="w-44 h-44 border-4 border-white shadow-sm rounded-lg">
+            <p class="text-xs font-bold text-slate-700 mt-3 font-mono">{{ upi_id }}</p>
+            <p class="text-[9px] text-slate-450 font-bold tracking-wider uppercase mt-0.5">Gramkart UPI Account</p>
+        </div>
+
+        <div class="space-y-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
+            <div class="flex justify-between font-semibold text-slate-500">
+                <span>Payment Mode:</span>
+                <span class="text-slate-800 font-bold">UPI Transfer</span>
+            </div>
+            <div class="flex justify-between font-semibold text-slate-500">
+                <span>Reference ID (UTR):</span>
+                <span class="text-slate-800 font-bold font-mono">{{ order.payment_reference }}</span>
+            </div>
+            <div class="flex justify-between font-semibold text-slate-500">
+                <span>Payment Status:</span>
+                <span class="text-amber-600 font-bold bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-md">Pending Verification</span>
+            </div>
+        </div>
+        <p class="text-[10px] text-slate-450 text-center font-bold leading-relaxed">
+            The owner will verify your UPI transaction details upon arrival and update the status.
+        </p>
+    </div>
+    {% else %}
+    <div class="glass-card rounded-3xl p-6 border border-slate-100/50 mb-8 space-y-4 text-left max-w-md mx-auto">
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-primary-600 flex items-center justify-center">
+                <i class="fa-solid fa-wallet text-lg"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-xs text-slate-900 font-poppins">Cash on Delivery (COD)</h3>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total: ₹{{ order.total_amount|int }}</p>
+            </div>
+        </div>
+        <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+            Your order will be delivered to <span class="font-bold text-slate-800">{{ order.delivery_village }}</span>, near <span class="font-bold text-slate-800">{{ order.delivery_landmark }}</span>. Please keep cash ready. The owner will accept the cash and mark the order Paid.
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-primary-650 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-3.5 px-8 rounded-2xl text-xs transition-colors shadow-lg shadow-primary-500/10">
+            Track Order Status
+        </a>
+        <a href="{{ url_for('index') }}" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-205 text-slate-700 font-bold py-3.5 px-8 rounded-2xl text-xs transition-all">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

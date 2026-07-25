@@ -1,0 +1,151 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Category Management{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Category Catalog</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Organize category rows, sort orders, and active storefront slots.</p>
+    </div>
+    <button onclick="toggleCategoryModal('add')" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-colors flex items-center gap-1.5">
+        <i class="fa-solid fa-plus text-xs"></i> Add New Category
+    </button>
+</div>
+
+<!-- Category list grid -->
+<div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {% if categories %}
+        {% for cat in categories %}
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4 relative flex flex-col justify-between">
+            <div class="absolute top-4 right-4 flex items-center gap-2">
+                <span class="bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono text-[9px] font-bold px-2 py-0.5 rounded-lg" title="Sort Order">Sort Priority: {{ cat.sort_order }}</span>
+                {% if cat.is_active %}
+                    <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Active</span>
+                {% else %}
+                    <span class="bg-slate-100 dark:bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Disabled</span>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-3.5 pt-2">
+                <div class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 dark:border-slate-800 flex-shrink-0">
+                    <img src="{{ cat.image_url if cat.image_url and cat.image_url != 'None' and cat.image_url != '' else '/static/images/placeholder.svg' }}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white leading-tight">{{ cat.name }}</h3>
+                    <p class="text-[9px] text-slate-450 dark:text-slate-400 font-mono">Slug: /{{ cat.slug }}</p>
+                    <p class="text-[9px] text-slate-400 font-semibold mt-0.5">{{ cat.products|length }} products linked</p>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex justify-between items-center pt-3 border-t border-slate-50 dark:border-slate-800">
+                <button onclick="toggleCategoryModal('edit', {{ cat.id }})" class="text-xs text-indigo-600 font-bold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit Details
+                </button>
+                
+                <form action="{{ url_for('admin.admin_category_delete', category_id=cat.id) }}" method="POST" onsubmit="return confirm('Delete this category? This will fail if products are linked.');">
+                    <button type="submit" class="text-xs text-rose-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-trash text-[10px]"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="sm:col-span-3 py-12 text-center text-slate-450 font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl">
+            No categories defined yet.
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add / Edit Category Modal Sheet -->
+<div id="category-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 text-slate-850 dark:text-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100 dark:border-slate-805/40">
+        <button onclick="toggleCategoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-white text-lg font-bold">&times;</button>
+        <h3 id="category-modal-title" class="font-poppins font-black text-sm text-slate-900 dark:text-white mb-4">Add Category</h3>
+        
+        <form id="category-form" method="POST" action="" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label for="c-name" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Category Name *</label>
+                <input type="text" id="c-name" name="name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+            </div>
+            
+            <div>
+                <label for="c-slug" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">URL Slug (e.g. fresh-fruits) *</label>
+                <input type="text" id="c-slug" name="slug" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+            </div>
+
+            <div>
+                <label for="c-image-url" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Category Image Link / Upload File</label>
+                <input type="text" id="c-image-url" name="image_url" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold mb-1" placeholder="Paste image link">
+                <input type="file" id="c-image-file" name="image_file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="c-sort" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Sort Priority Order</label>
+                    <input type="number" id="c-sort" name="sort_order" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" value="0">
+                </div>
+                <div id="cat-active-block" class="hidden">
+                    <label for="c-active" class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                    <select id="c-active" name="is_active" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-bold focus:outline-none">
+                        <option value="True">Active</option>
+                        <option value="False">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                Save Category
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Category data registry to prevent HTML quote escaping issues
+const categoriesData = {
+    {% for cat in categories %}
+    "{{ cat.id }}": {{ cat.to_dict()|tojson|safe }},
+    {% endfor %}
+};
+
+function toggleCategoryModal(mode, categoryId) {
+    const modal = document.getElementById('category-modal');
+    const form = document.getElementById('category-form');
+    const title = document.getElementById('category-modal-title');
+    const activeBlock = document.getElementById('cat-active-block');
+    
+    if (!modal) return;
+    
+    if (modal.classList.contains('hidden')) {
+        if (mode === 'add') {
+            title.innerText = "Add Category";
+            form.action = "{{ url_for('admin.admin_category_add') }}";
+            form.reset();
+            activeBlock.classList.add('hidden');
+        } else if (mode === 'edit' && categoryId) {
+            const data = categoriesData[categoryId];
+            if (!data) return;
+            
+            title.innerText = "Edit Category";
+            form.action = `/admin/categories/edit/${data.id}`;
+            
+            document.getElementById('c-name').value = data.name || '';
+            document.getElementById('c-slug').value = data.slug || '';
+            document.getElementById('c-image-url').value = data.image_url || '';
+            document.getElementById('c-sort').value = data.sort_order || 0;
+            
+            document.getElementById('c-active').value = data.is_active ? 'True' : 'False';
+            activeBlock.classList.remove('hidden');
+        }
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gramkart - Rural Quick Commerce{% endblock %}</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Gramkart - Quick commerce store delivering fresh groceries, staples, dairy, and household items directly to rural India. Managed personally, delivered instantly.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- PWA Support -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#16a34a">
+    <link rel="apple-touch-icon" href="/static/images/logo-192.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#16a34a',
+                            600: '#15803d',
+                            700: '#166534',
+                            800: '#14532d',
+                            900: '#064e3b',
+                        },
+                        accent: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen pb-16 md:pb-0 relative overflow-x-hidden">
+    <!-- Modern Gradient Blur Blobs -->
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-200/10 rounded-full blur-3xl pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3"></div>
+    <div class="absolute bottom-1/4 left-0 w-[400px] h-[400px] bg-accent-200/10 rounded-full blur-3xl pointer-events-none -z-10 -translate-x-1/3"></div>
+
+    <!-- Admin Notification Header -->
+    {% if is_admin_logged_in %}
+    <div class="bg-indigo-950 text-white text-xs py-2.5 px-4 flex justify-between items-center z-50 shadow-md font-poppins">
+        <span class="font-bold flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <i class="fa-solid fa-user-shield"></i> Store Admin Portal Active</span>
+        <div class="flex gap-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="font-bold underline hover:text-indigo-200"><i class="fa-solid fa-gauge-high mr-1"></i>Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="font-bold underline hover:text-indigo-200"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Logout</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sticky Navigation Header -->
+    <header class="sticky top-0 bg-white/85 backdrop-blur-lg border-b border-slate-200/40 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <a href="{{ url_for('index') }}" class="flex items-center gap-2 group flex-shrink-0">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-500 to-accent-500 flex items-center justify-center text-white shadow-md shadow-primary-500/10 group-hover:scale-105 transition-transform duration-300">
+                    <i class="fa-solid fa-basket-shopping text-lg"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="font-poppins font-black text-xl tracking-tight bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">Gramkart</span>
+                    <p class="text-[9px] text-slate-400 font-bold tracking-widest uppercase -mt-1">Rural Delivery</p>
+                </div>
+            </a>
+
+            <!-- Categories Dropdown Trigger (Desktop) -->
+            <div class="relative hidden md:block">
+                <button id="category-dropdown-btn" class="flex items-center gap-2 px-4 py-2 bg-slate-100/80 hover:bg-slate-200/80 text-slate-700 text-xs font-bold rounded-xl transition-all">
+                    <i class="fa-solid fa-bars text-primary-600"></i> Categories <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                </button>
+                <!-- Dropdown list -->
+                <div id="category-dropdown-menu" class="absolute left-0 top-full mt-2 w-56 bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-xl py-2 z-50 hidden transition-all duration-300">
+                    {% for cat in categories %}
+                    <a href="{{ url_for('category_detail', slug=cat.slug) }}" class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors">
+                        <span class="w-2 h-2 rounded-full bg-primary-500/20 group-hover:bg-primary-500"></span> {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Large Search Bar with autocomplete suggestions -->
+            <div class="relative flex-grow max-w-lg">
+                <form action="{{ url_for('index') }}" method="GET" class="relative">
+                    <input type="text" id="header-search" name="q" value="{{ search_query or '' }}" placeholder="{{ _t('search_placeholder') }}" class="w-full bg-slate-100/80 border border-slate-200/30 rounded-2xl pl-11 pr-10 py-2 text-xs md:text-sm focus:outline-none focus:border-primary-500 focus:bg-white transition-all font-semibold text-slate-800" autocomplete="off">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs md:text-sm"></i>
+                    </span>
+                    <button type="button" id="voice-search-btn" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-450 hover:text-primary-600 transition-colors" title="{{ _t('voice_search') }}">
+                        <i class="fa-solid fa-microphone text-xs md:text-sm"></i>
+                    </button>
+                </form>
+                <!-- Auto Suggestions Panel -->
+                <div id="suggestions-box" class="search-dropdown">
+                    <!-- Suggested items populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-2 md:gap-3">
+                <!-- Wishlist Client-side Indicator (Placeholder) -->
+                <button onclick="toggleWishlistModal()" class="relative bg-slate-100/80 hover:bg-slate-200/80 p-2.5 rounded-xl transition-all flex items-center justify-center group" title="Wishlist">
+                    <i class="fa-regular fa-heart text-base text-slate-600 group-hover:text-rose-500 transition-colors"></i>
+                    <span id="wishlist-count-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white font-extrabold text-[8px] w-4 h-4 rounded-full flex items-center justify-center border border-white">0</span>
+                </button>
+
+                <!-- Language Selector -->
+                <div class="relative">
+                    <button id="lang-btn" class="bg-slate-100/80 hover:bg-slate-200/80 p-2.5 rounded-xl transition-all flex items-center justify-center gap-1 font-bold text-xs text-slate-600 group" title="Change Language">
+                        <i class="fa-solid fa-globe text-xs"></i> <span class="hidden sm:inline uppercase">{{ session.get('lang', 'en') }}</span>
+                    </button>
+                    <!-- Language Dropdown Menu -->
+                    <div id="lang-dropdown" class="absolute right-0 top-full mt-2 w-32 bg-white border border-slate-200/50 rounded-2xl shadow-xl py-2 z-50 hidden transition-all duration-300 font-poppins">
+                        <a href="/language/en" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-750 hover:bg-slate-50 hover:text-primary-600 transition-colors">English</a>
+                        <a href="/language/hi" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-750 hover:bg-slate-50 hover:text-primary-600 transition-colors">हिन्दी</a>
+                        <a href="/language/kn" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-750 hover:bg-slate-50 hover:text-primary-600 transition-colors">ಕನ್ನಡ</a>
+                    </div>
+                </div>
+
+                <!-- Notifications Button -->
+                <div class="relative">
+                    <button id="notif-btn" class="bg-slate-100/80 hover:bg-slate-200/80 p-2.5 rounded-xl transition-all flex items-center justify-center group" title="Notifications">
+                        <i class="fa-regular fa-bell text-base text-slate-600 group-hover:text-primary-500 transition-colors"></i>
+                        {% if unread_notifications_count > 0 %}
+                        <span id="notif-count-badge" class="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white font-extrabold text-[8px] rounded-full border border-white flex items-center justify-center animate-pulse">
+                            {{ unread_notifications_count }}
+                        </span>
+                        {% endif %}
+                    </button>
+                    <!-- Notifications Dropdown Box -->
+                    <div id="notif-dropdown" class="absolute right-0 top-full mt-2 w-72 bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-xl py-3 px-4 z-50 hidden">
+                        <h4 class="font-poppins font-black text-xs text-slate-800 mb-3 flex items-center justify-between">
+                            Notifications 
+                            {% if unread_notifications_count > 0 %}
+                            <button onclick="markNotificationsAsRead(this)" class="text-[9px] text-primary-600 font-bold hover:underline">Mark all read</button>
+                            {% endif %}
+                        </h4>
+                        <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                            {% if current_user %}
+                                {% if notifications_list %}
+                                    {% for notif in notifications_list %}
+                                    <div class="flex gap-2.5 items-start p-2 rounded-xl border {% if not notif.is_read %}bg-primary-50/20 border-primary-100/30{% else %}bg-slate-50 border-slate-100/40{% endif %}">
+                                        <span class="text-xs text-primary-600 mt-0.5"><i class="fa-solid fa-bell"></i></span>
+                                        <div class="flex-grow">
+                                            <p class="text-[11px] font-bold text-slate-700 leading-snug">{{ notif.title }}</p>
+                                            <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">{{ notif.message }}</p>
+                                            <p class="text-[8px] text-slate-405 font-semibold mt-1">{{ notif.created_at.strftime('%I:%M %p') }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-xs text-slate-400 font-semibold py-4 text-center">No notifications yet</p>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-xs text-slate-400 font-semibold py-4 text-center">Sign in to view notifications</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shopping Cart Badge -->
+                <a href="{{ url_for('cart') }}" class="relative bg-slate-100/80 hover:bg-primary-50 hover:text-primary-700 p-2.5 rounded-xl transition-all flex items-center justify-center group" id="cart-header-btn" title="Shopping Cart">
+                    <i class="fa-solid fa-cart-shopping text-base text-slate-700 group-hover:text-primary-600 transition-colors"></i>
+                    {% if cart_count > 0 %}
+                    <span class="absolute -top-1.5 -right-1.5 bg-accent-500 text-white font-extrabold text-[9px] w-5 h-5 rounded-full flex items-center justify-center border border-white">
+                        {{ cart_count }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <!-- User Profile Dropdown (Desktop) -->
+                <div class="relative hidden sm:block">
+                    {% if current_user %}
+                    <button id="profile-dropdown-btn" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/80 text-xs font-bold text-slate-700 rounded-xl transition-all">
+                        <i class="fa-solid fa-circle-user text-primary-600 text-base"></i> {{ current_user.name.split()[0] }} <i class="fa-solid fa-chevron-down text-[8px] text-slate-400"></i>
+                    </button>
+                    <!-- Dropdown -->
+                    <div id="profile-dropdown-menu" class="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-xl py-2 z-50 hidden">
+                        <div class="px-4 py-2 border-b border-slate-100 mb-1">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Customer</p>
+                            <p class="text-xs font-bold text-slate-800 truncate">{{ current_user.name }}</p>
+                        </div>
+                        <a href="/profile" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-650 hover:bg-slate-50 hover:text-primary-600 transition-colors">
+                            <i class="fa-solid fa-circle-user text-slate-400 w-4"></i> My Profile
+                        </a>
+                        <a href="{{ url_for('orders') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-650 hover:bg-slate-50 hover:text-primary-600 transition-colors">
+                            <i class="fa-solid fa-receipt text-slate-400 w-4"></i> My Orders
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors">
+                            <i class="fa-solid fa-arrow-right-from-bracket w-4"></i> Logout
+                        </a>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-primary-500/10">Sign In</a>
+                    {% endif %}
+                </div>
+
+                <!-- Hamburger menu (Mobile) -->
+                <button id="mobile-menu-btn" class="sm:hidden bg-slate-100/80 hover:bg-slate-250 p-2.5 rounded-xl text-slate-600 focus:outline-none">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Slide-out Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-all duration-300">
+        <div class="w-72 bg-white h-full shadow-2xl p-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300" id="mobile-menu-pane">
+            <div>
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary-500 to-accent-500 flex items-center justify-center text-white shadow-md">
+                            <i class="fa-solid fa-basket-shopping text-sm"></i>
+                        </div>
+                        <span class="font-poppins font-black text-md text-slate-800">Gramkart</span>
+                    </div>
+                    <button id="mobile-menu-close" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+                </div>
+
+                <div class="space-y-5">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navigation</span>
+                    <a href="{{ url_for('index') }}" class="block text-sm font-bold text-slate-700 hover:text-primary-600"><i class="fa-solid fa-house w-6 text-slate-400"></i> Home</a>
+                    <a href="/profile" class="block text-sm font-bold text-slate-700 hover:text-primary-600"><i class="fa-solid fa-circle-user w-6 text-slate-400"></i> My Profile</a>
+                    <a href="{{ url_for('orders') }}" class="block text-sm font-bold text-slate-700 hover:text-primary-600"><i class="fa-solid fa-receipt w-6 text-slate-400"></i> My Orders</a>
+                    
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-4">Categories</span>
+                    <div class="space-y-3.5 pl-2 border-l border-slate-100">
+                        {% for cat in categories %}
+                        <a href="{{ url_for('category_detail', slug=cat.slug) }}" class="block text-xs font-semibold text-slate-600 hover:text-primary-600">{{ cat.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-6">
+                {% if current_user %}
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-primary-600 font-bold">
+                        {{ current_user.name[0] }}
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 leading-snug">{{ current_user.name }}</h4>
+                        <p class="text-[9px] text-slate-400 font-semibold">+91 {{ current_user.phone }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="block text-center bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2.5 rounded-xl text-xs transition-colors"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sign Out</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="block text-center bg-primary-500 hover:bg-primary-600 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-md shadow-primary-500/10">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-side Wishlist Modal (Static View) -->
+    <div id="wishlist-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="toggleWishlistModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold focus:outline-none">&times;</button>
+            <h3 class="font-poppins font-black text-md text-slate-900 mb-4"><i class="fa-solid fa-heart text-rose-500 mr-1.5 animate-pulse"></i> My Wishlist</h3>
+            <div id="wishlist-items-box" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Populated via Javascript -->
+                <p class="text-xs text-slate-400 font-bold text-center py-6">Your wishlist is empty!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+        <!-- Toast Notification Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-3" id="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flex items-center justify-between p-4 rounded-2xl shadow-sm border {% if category == 'danger' %} bg-rose-50 border-rose-100 text-rose-800 {% elif category == 'success' %} bg-emerald-50 border-emerald-100 text-emerald-800 {% elif category == 'warning' %} bg-amber-50 border-amber-100 text-amber-800 {% else %} bg-sky-50 border-sky-100 text-sky-800 {% endif %} transition-all duration-300" role="alert">
+                            <div class="flex items-center gap-3">
+                                {% if category == 'danger' %}
+                                    <i class="fa-solid fa-circle-exclamation text-lg"></i>
+                                {% elif category == 'success' %}
+                                    <i class="fa-solid fa-circle-check text-lg"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-info text-lg"></i>
+                                {% endif %}
+                                <span class="font-medium text-xs font-poppins">{{ message }}</span>
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 font-bold text-lg focus:outline-none">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <script>
+                    setTimeout(() => {
+                        const container = document.getElementById('flash-container');
+                        if (container) {
+                            container.style.opacity = '0';
+                            setTimeout(() => container.remove(), 300);
+                        }
+                    }, 5000);
+                </script>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar (Blinkit style) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/30 flex justify-around py-2.5 px-4 shadow-[0_-2px_15px_rgba(0,0,0,0.03)] z-40">
+        <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary-600 transition-colors">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[9px] font-bold">Home</span>
+        </a>
+        <a href="javascript:void(0)" onclick="openMobileCategories()" class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary-600 transition-colors">
+            <i class="fa-solid fa-grid-2 text-lg"><i class="fa-solid fa-layer-group"></i></i>
+            <span class="text-[9px] font-bold">Categories</span>
+        </a>
+        <a href="{{ url_for('cart') }}" class="relative flex flex-col items-center gap-1 text-slate-500 hover:text-primary-600 transition-colors">
+            <i class="fa-solid fa-cart-shopping text-lg"></i>
+            {% if cart_count > 0 %}
+            <span class="absolute -top-1 right-1 bg-accent-500 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-extrabold border border-white">
+                {{ cart_count }}
+            </span>
+            {% endif %}
+            <span class="text-[9px] font-bold">Cart</span>
+        </a>
+        <a href="{{ url_for('orders') }}" class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary-600 transition-colors">
+            <i class="fa-solid fa-receipt text-lg"></i>
+            <span class="text-[9px] font-bold">Orders</span>
+        </a>
+        {% if current_user %}
+            <a href="{{ url_for('logout') }}" class="flex flex-col items-center gap-1 text-rose-500 hover:text-rose-600 transition-colors">
+                <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+                <span class="text-[9px] font-bold">Logout</span>
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="flex flex-col items-center gap-1 text-slate-500 hover:text-primary-600 transition-colors">
+                <i class="fa-solid fa-circle-user text-lg"></i>
+                <span class="text-[9px] font-bold">Profile</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Mobile categories drawer popup -->
+    <div id="mobile-categories-drawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-end justify-center">
+        <div class="w-full bg-white rounded-t-3xl p-6 max-h-[70vh] overflow-y-auto shadow-2xl relative translate-y-full transition-transform duration-350" id="mobile-categories-pane">
+            <button onclick="closeMobileCategories()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold focus:outline-none">&times;</button>
+            <h3 class="font-poppins font-black text-md text-slate-900 mb-4">Select Category</h3>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                {% for cat in categories %}
+                <a href="{{ url_for('category_detail', slug=cat.slug) }}" class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-primary-50 rounded-2xl border border-slate-100 transition-all">
+                    <div class="w-8 h-8 rounded-lg bg-white overflow-hidden flex-shrink-0 border border-slate-100">
+                        <img src="{{ cat.image_url }}" alt="" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-xs font-bold text-slate-700">{{ cat.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Multi-column Footer -->
+    <footer class="bg-white border-t border-slate-200/40 mt-16 py-12 hidden md:block">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <!-- Brand Column -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-500 to-accent-500 flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-basket-shopping text-sm"></i>
+                    </div>
+                    <span class="font-poppins font-black text-md bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">Gramkart</span>
+                </div>
+                <p class="text-xs text-slate-450 leading-relaxed">Modern grocery delivery tailored for rural areas. Managed and delivered personally by the shop owner to your doorstep.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-primary-50 hover:text-primary-600 flex items-center justify-center text-slate-500 transition-colors"><i class="fa-brands fa-facebook-f text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-primary-50 hover:text-primary-600 flex items-center justify-center text-slate-500 transition-colors"><i class="fa-brands fa-instagram text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-primary-50 hover:text-primary-600 flex items-center justify-center text-slate-500 transition-colors"><i class="fa-brands fa-twitter text-xs"></i></a>
+                </div>
+            </div>
+
+            <!-- Categories Links -->
+            <div>
+                <h4 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest mb-4">Categories</h4>
+                <div class="space-y-2.5">
+                    {% for cat in categories %}
+                    <a href="{{ url_for('category_detail', slug=cat.slug) }}" class="block text-xs font-semibold text-slate-500 hover:text-primary-600 transition-colors">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest mb-4">Store Info</h4>
+                <div class="space-y-2.5">
+                    <a href="/support" class="block text-xs font-semibold text-slate-500 hover:text-primary-600">Help & Support Center</a>
+                    <a href="#" class="block text-xs font-semibold text-slate-500 hover:text-primary-600">Privacy Policy</a>
+                    <a href="#" class="block text-xs font-semibold text-slate-500 hover:text-primary-600">Terms of Service</a>
+                </div>
+            </div>
+
+            <!-- Newsletter Signup -->
+            <div>
+                <h4 class="font-poppins font-black text-xs text-slate-800 uppercase tracking-widest mb-4">Newsletter</h4>
+                <p class="text-xs text-slate-450 mb-3.5 leading-relaxed">Subscribe to get notifications of stock arrivals, new dairy drops, and festive deals!</p>
+                <form onsubmit="event.preventDefault(); alert('Subscribed successfully!'); this.reset();" class="flex gap-2">
+                    <input type="email" placeholder="Your email address" required class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary-500 focus:bg-white font-semibold">
+                    <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white font-bold px-3 py-2 rounded-xl text-xs transition-colors"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <hr class="border-slate-100 max-w-6xl mx-auto mb-6">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center text-[11px] text-slate-400 font-semibold">
+            <span>© 2026 Gramkart. All rights reserved.</span>
+            <span>Delivery Agent: Store Owner (Self)</span>
+        </div>
+    </footer>
+
+    <!-- Core Client-side Scripts -->
+    <script>
+        // Search Auto-Suggestions Catalog
+        const catalog = {{ catalog_list|tojson|safe }};
+
+        const searchInput = document.getElementById('header-search');
+        const suggestionsBox = document.getElementById('suggestions-box');
+        
+        let recentSearches = JSON.parse(localStorage.getItem('gramkart_recent_searches')) || [];
+        const popularSearches = ['Potato', 'Milk', 'Paneer', 'Ghee', 'Atta', 'Rice'];
+
+        function markNotificationsAsRead(btn) {
+            if (btn) btn.disabled = true;
+            fetch('/api/notifications/mark-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('notif-count-badge');
+                    if (badge) badge.remove();
+                    if (btn) btn.remove();
+                    // Optional: remove highlight styling of notification items
+                    document.querySelectorAll('#notif-dropdown .bg-primary-50\\/20').forEach(div => {
+                        div.classList.replace('bg-primary-50/20', 'bg-slate-50');
+                        div.classList.replace('border-primary-100/30', 'border-slate-100/40');
+                    });
+                }
+            });
+        }
+
+        function saveSearchQuery(query) {
+            query = query.trim();
+            if (!query) return;
+            recentSearches = recentSearches.filter(q => q.toLowerCase() !== query.toLowerCase());
+            recentSearches.unshift(query);
+            if (recentSearches.length > 5) recentSearches.pop();
+            localStorage.setItem('gramkart_recent_searches', JSON.stringify(recentSearches));
+        }
+
+        function highlightText(text, query) {
+            if (!query) return text;
+            const index = text.toLowerCase().indexOf(query.toLowerCase());
+            if (index === -1) return text;
+            const matchLen = query.length;
+            return text.substring(0, index) + 
+                   `<span class="bg-amber-100 text-slate-900 font-extrabold">${text.substring(index, index + matchLen)}</span>` + 
+                   text.substring(index + matchLen);
+        }
+
+        function renderDefaultSuggestions() {
+            suggestionsBox.innerHTML = '';
+            
+            // Recent Searches Section
+            if (recentSearches.length > 0) {
+                const recentDiv = document.createElement('div');
+                recentDiv.className = 'p-3 border-b border-slate-100/50';
+                recentDiv.innerHTML = `<h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex justify-between items-center">Recent Searches <button onclick="clearRecentSearches(event)" class="text-rose-500 hover:underline">Clear All</button></h5>`;
+                
+                const list = document.createElement('div');
+                list.className = 'flex flex-wrap gap-2';
+                recentSearches.forEach(q => {
+                    const pill = document.createElement('div');
+                    pill.className = 'flex items-center gap-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-full px-3 py-1 text-[10px] font-bold text-slate-700 cursor-pointer transition-colors';
+                    pill.innerHTML = `<span onclick="triggerSearch('${q}')">${q}</span><button onclick="removeRecentSearch(event, '${q}')" class="text-slate-400 hover:text-rose-500 font-bold">&times;</button>`;
+                    list.appendChild(pill);
+                });
+                recentDiv.appendChild(list);
+                suggestionsBox.appendChild(recentDiv);
+            }
+
+            // Popular Searches Section
+            const popularDiv = document.createElement('div');
+            popularDiv.className = 'p-3';
+            popularDiv.innerHTML = `<h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Popular Searches</h5>`;
+            
+            const popList = document.createElement('div');
+            popList.className = 'flex flex-wrap gap-2';
+            popularSearches.forEach(q => {
+                const pill = document.createElement('span');
+                pill.className = 'bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-full px-3 py-1 text-[10px] font-bold text-slate-700 cursor-pointer transition-colors';
+                pill.onclick = () => triggerSearch(q);
+                pill.innerText = q;
+                popList.appendChild(pill);
+            });
+            popularDiv.appendChild(popList);
+            suggestionsBox.appendChild(popularDiv);
+            
+            suggestionsBox.classList.remove('hidden');
+        }
+
+        window.triggerSearch = function(query) {
+            saveSearchQuery(query);
+            window.location.href = `/?q=${encodeURIComponent(query)}`;
+        };
+
+        window.clearRecentSearches = function(e) {
+            e.stopPropagation();
+            recentSearches = [];
+            localStorage.setItem('gramkart_recent_searches', JSON.stringify(recentSearches));
+            renderDefaultSuggestions();
+        };
+
+        window.removeRecentSearch = function(e, query) {
+            e.stopPropagation();
+            recentSearches = recentSearches.filter(q => q !== query);
+            localStorage.setItem('gramkart_recent_searches', JSON.stringify(recentSearches));
+            renderDefaultSuggestions();
+        };
+
+        if (searchInput && suggestionsBox) {
+            let debounceTimer;
+
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim().length === 0) {
+                    renderDefaultSuggestions();
+                }
+            });
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+                
+                if (query.length === 0) {
+                    renderDefaultSuggestions();
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    suggestionsBox.innerHTML = '';
+                    const lowerQuery = query.toLowerCase();
+                    const matches = catalog.filter(p => 
+                        p.name.toLowerCase().includes(lowerQuery) || 
+                        p.category.toLowerCase().includes(lowerQuery)
+                    ).slice(0, 6);
+
+                    if (matches.length === 0) {
+                        suggestionsBox.innerHTML = `
+                            <div class="p-6 text-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-2 text-slate-350 text-md">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <p class="text-xs font-bold text-slate-800">No results found for "${query}"</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Check the spelling or try another term</p>
+                            </div>
+                        `;
+                    } else {
+                        matches.forEach(item => {
+                            const div = document.createElement('a');
+                            div.href = `/product/${item.id}`;
+                            div.className = 'search-item';
+                            div.onclick = () => saveSearchQuery(query);
+                            div.innerHTML = `
+                                <img src="${item.img}" class="w-8 h-8 rounded-lg object-cover border border-slate-100 flex-shrink-0">
+                                <div class="flex-grow">
+                                    <p class="text-xs font-bold text-slate-800 leading-snug line-clamp-1">${highlightText(item.name, query)}</p>
+                                    <p class="text-[9px] text-slate-450 font-bold uppercase tracking-wider">${highlightText(item.category, query)} &bull; ${item.unit}</p>
+                                </div>
+                                <span class="text-xs font-black text-slate-900">₹${item.price}</span>
+                            `;
+                            suggestionsBox.appendChild(div);
+                        });
+                    }
+                    suggestionsBox.classList.remove('hidden');
+                }, 150);
+            });
+
+            // Handle Form Submission to save query
+            const searchForm = searchInput.closest('form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+                    saveSearchQuery(searchInput.value);
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+        }
+
+        // Category dropdown menu trigger
+        const catBtn = document.getElementById('category-dropdown-btn');
+        const catMenu = document.getElementById('category-dropdown-menu');
+        if (catBtn && catMenu) {
+            catBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                catMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => catMenu.classList.add('hidden'));
+        }
+
+        // Notifications trigger
+        const notifBtn = document.getElementById('notif-btn');
+        const notifDropdown = document.getElementById('notif-dropdown');
+        if (notifBtn && notifDropdown) {
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => notifDropdown.classList.add('hidden'));
+        }
+
+        // Profile trigger
+        const profileBtn = document.getElementById('profile-dropdown-btn');
+        const profileMenu = document.getElementById('profile-dropdown-menu');
+        if (profileBtn && profileMenu) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+        }
+
+        // Mobile drawer toggles
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuPane = document.getElementById('mobile-menu-pane');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+
+        if (mobileMenuBtn && mobileMenu && mobileMenuPane) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => mobileMenuPane.classList.remove('-translate-x-full'), 50);
+            });
+            const closeMenu = () => {
+                mobileMenuPane.classList.add('-translate-x-full');
+                setTimeout(() => mobileMenu.classList.add('hidden'), 300);
+            };
+            mobileMenuClose.addEventListener('click', closeMenu);
+            mobileMenu.addEventListener('click', (e) => {
+                if (!mobileMenuPane.contains(e.target)) closeMenu();
+            });
+        }
+
+        // Mobile categories popup
+        const mobileCatDrawer = document.getElementById('mobile-categories-drawer');
+        const mobileCatPane = document.getElementById('mobile-categories-pane');
+        window.openMobileCategories = function() {
+            if (mobileCatDrawer && mobileCatPane) {
+                mobileCatDrawer.classList.remove('hidden');
+                setTimeout(() => mobileCatPane.classList.remove('translate-y-full'), 50);
+            }
+        };
+        window.closeMobileCategories = function() {
+            if (mobileCatDrawer && mobileCatPane) {
+                mobileCatPane.classList.add('translate-y-full');
+                setTimeout(() => mobileCatDrawer.classList.add('hidden'), 350);
+            }
+        };
+        if (mobileCatDrawer && mobileCatPane) {
+            mobileCatDrawer.addEventListener('click', (e) => {
+                if (!mobileCatPane.contains(e.target)) closeMobileCategories();
+            });
+        }
+
+        // Wishlist database & client-side integration
+        const isUserLoggedIn = {% if current_user %}true{% else %}false{% endif %};
+        let wishlist = [];
+
+        if (isUserLoggedIn) {
+            wishlist = {{ user_wishlist_ids|tojson|safe }};
+            // Sync local storage offline items to database
+            const offlineWishlist = JSON.parse(localStorage.getItem('gramkart_wishlist')) || [];
+            if (offlineWishlist.length > 0) {
+                fetch('/api/wishlist/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_ids: offlineWishlist })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        wishlist = data.product_ids;
+                        localStorage.removeItem('gramkart_wishlist');
+                        updateWishlistBadge();
+                    }
+                });
+            }
+        } else {
+            wishlist = JSON.parse(localStorage.getItem('gramkart_wishlist')) || [];
+        }
+
+        function updateWishlistBadge() {
+            const badge = document.getElementById('wishlist-count-badge');
+            if (badge) {
+                badge.innerText = wishlist.length;
+                if (wishlist.length > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        window.toggleWishlist = function(productId, btn) {
+            const index = wishlist.indexOf(productId);
+            
+            if (isUserLoggedIn) {
+                fetch(`/api/wishlist/toggle/${productId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.action === 'added') {
+                            if (wishlist.indexOf(productId) === -1) wishlist.push(productId);
+                            if (btn) btn.innerHTML = '<i class="fa-solid fa-heart text-rose-500 scale-110 transition-transform"></i>';
+                        } else {
+                            wishlist = wishlist.filter(id => id !== productId);
+                            if (btn) btn.innerHTML = '<i class="fa-regular fa-heart text-slate-450 hover:text-rose-500 transition-colors"></i>';
+                        }
+                        updateWishlistBadge();
+                        renderWishlistModalItems();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            } else {
+                if (index === -1) {
+                    wishlist.push(productId);
+                    if (btn) btn.innerHTML = '<i class="fa-solid fa-heart text-rose-500 scale-110 transition-transform"></i>';
+                } else {
+                    wishlist.splice(index, 1);
+                    if (btn) btn.innerHTML = '<i class="fa-regular fa-heart text-slate-450 hover:text-rose-500 transition-colors"></i>';
+                }
+                localStorage.setItem('gramkart_wishlist', JSON.stringify(wishlist));
+                updateWishlistBadge();
+                renderWishlistModalItems();
+            }
+        };
+
+        window.isInWishlist = function(productId) {
+            return wishlist.includes(productId);
+        };
+
+        window.toggleWishlistModal = function() {
+            const modal = document.getElementById('wishlist-modal');
+            if (modal) {
+                modal.classList.toggle('hidden');
+                renderWishlistModalItems();
+            }
+        };
+
+        window.moveWishlistItemToCart = function(productId) {
+            if (!isUserLoggedIn) {
+                alert('Please sign in to add items to your cart.');
+                window.location.href = '/login';
+                return;
+            }
+            fetch(`/api/wishlist/move-to-cart/${productId}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    wishlist = wishlist.filter(id => id !== productId);
+                    updateWishlistBadge();
+                    renderWishlistModalItems();
+                    
+                    // Show a toast or notification and refresh page/cart values
+                    alert('Item moved to cart!');
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+        };
+
+        function renderWishlistModalItems() {
+            const box = document.getElementById('wishlist-items-box');
+            if (!box) return;
+            box.innerHTML = '';
+            
+            const wishlistProducts = catalog.filter(p => wishlist.includes(p.id));
+            
+            if (wishlistProducts.length === 0) {
+                box.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-6">Your wishlist is empty!</p>`;
+                return;
+            }
+
+            wishlistProducts.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-100 relative';
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-10 h-10 rounded-xl object-cover border border-slate-100 flex-shrink-0">
+                    <div class="flex-grow pr-16">
+                        <a href="/product/${item.img ? item.id : ''}" class="text-xs font-bold text-slate-800 leading-snug line-clamp-1 hover:text-primary-600">${item.name}</a>
+                        <p class="text-[9px] text-slate-450 font-bold uppercase">${item.unit} &bull; ₹${item.price}</p>
+                    </div>
+                    <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        <button onclick="moveWishlistItemToCart(${item.id})" class="bg-primary-500 hover:bg-primary-600 text-white font-bold p-2 rounded-xl text-[10px] transition-colors" title="Move to Cart"><i class="fa-solid fa-cart-plus"></i></button>
+                        <button onclick="toggleWishlist(${item.id}); renderWishlistModalItems();" class="text-rose-500 hover:text-slate-450 transition-colors p-2" title="Remove"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                `;
+                box.appendChild(div);
+            });
+        }
+        // PWA service worker registrar
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+
+        // Language Dropdown toggle script
+        const langBtn = document.getElementById('lang-btn');
+        const langDropdown = document.getElementById('lang-dropdown');
+        if (langBtn && langDropdown) {
+            langBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                langDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => {
+                langDropdown.classList.add('hidden');
+            });
+        }
+
+        // Voice Search web kit microphone listener
+        const voiceSearchBtn = document.getElementById('voice-search-btn');
+        const headerSearchInput = document.getElementById('header-search');
+        if (voiceSearchBtn && headerSearchInput) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-IN';
+                
+                voiceSearchBtn.addEventListener('click', () => {
+                    voiceSearchBtn.innerHTML = '<i class="fa-solid fa-microphone text-red-500 animate-pulse"></i>';
+                    recognition.start();
+                });
+                
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    headerSearchInput.value = transcript;
+                    voiceSearchBtn.innerHTML = '<i class="fa-solid fa-microphone text-slate-450"></i>';
+                    headerSearchInput.form.submit();
+                };
+                
+                recognition.onerror = () => {
+                    voiceSearchBtn.innerHTML = '<i class="fa-solid fa-microphone text-slate-450"></i>';
+                };
+                recognition.onend = () => {
+                    voiceSearchBtn.innerHTML = '<i class="fa-solid fa-microphone text-slate-450"></i>';
+                };
+            } else {
+                voiceSearchBtn.style.display = 'none';
+            }
+        }
+        updateWishlistBadge();
+    </script>
+    <!-- Socket.IO client library -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Init socket connections
+        try {
+            const socket = io();
+            if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+            {% if current_user %}
+            socket.on('connect', () => {
+                socket.emit('join', { room: 'user_{{ current_user.id }}' });
+            });
+            socket.on('order_status_update', (data) => {
+                showToast(`Order #${data.order_id} status updated to: ${data.status}`);
+                if (Notification.permission === "granted") {
+                    new Notification("GramKart Order Update", {
+                        body: `Order #${data.order_id} status is now ${data.status}`,
+                        icon: '/static/images/logo-192.png'
+                    });
+                }
+            });
+            {% endif %}
+        } catch(e) {
+            console.warn("SocketIO initialization failed", e);
+        }
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-6 py-3.5 rounded-2xl shadow-xl z-50 animate-bounce transition-all duration-300';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 4000);
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,128 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - System & Settings{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">System & Settings</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Configure parameters, download exports, restore DB snapshots, and inspect admin audit logs.</p>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+    <!-- Configuration options panel (Col Span 2) -->
+    <div class="md:col-span-2 space-y-6">
+        <!-- Site Configuration -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-205 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-cogs mr-1 text-green-500"></i> Website Parameters</h3>
+            
+            <form action="{{ url_for('admin.admin_settings') }}" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="s-name" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Site Title Brand *</label>
+                        <input type="text" id="s-name" name="site_name" value="{{ settings.get('site_name', 'GramKart') }}" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                    </div>
+                    <div>
+                        <label for="s-email" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Contact Email *</label>
+                        <input type="email" id="s-email" name="contact_email" value="{{ settings.get('contact_email', 'contact@gramkart.com') }}" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="s-phone" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Contact Phone *</label>
+                        <input type="text" id="s-phone" name="contact_phone" value="{{ settings.get('contact_phone', '+91 98765 43210') }}" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                    </div>
+                    <div>
+                        <label for="s-maintenance" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Maintenance Lockout Mode</label>
+                        <select id="s-maintenance" name="maintenance_mode" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-805 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-white font-bold focus:outline-none">
+                            <option value="False" {% if settings.get('maintenance_mode') == 'False' %}selected{% endif %}>Online (Storefront active)</option>
+                            <option value="True" {% if settings.get('maintenance_mode') == 'True' %}selected{% endif %}>Offline (Maintenance screen)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="s-currency" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Default Store Currency</label>
+                    <input type="text" id="s-currency" name="currency" value="{{ settings.get('currency', 'INR') }}" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-bold">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                    Save System Parameters
+                </button>
+            </form>
+        </div>
+
+        <!-- Audit log -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-list-check mr-1 text-indigo-500"></i> Admin Audit Log</h3>
+            <div class="divide-y divide-slate-100 dark:divide-slate-800 max-h-80 overflow-y-auto pr-1">
+                {% if logs %}
+                    {% for l in logs %}
+                    <div class="py-2.5 text-[11px]">
+                        <div class="flex justify-between font-semibold">
+                            <span class="text-slate-900 dark:text-slate-200">{{ l.action }}</span>
+                            <span class="text-slate-400">{{ l.created_at.strftime('%d %b, %I:%M %p') }}</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400 font-mono mt-0.5">Admin: {{ l.admin.name if l.admin else 'System' }} | IP: {{ l.ip_address }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-xs text-slate-400 font-semibold py-4 text-center">No audit logs recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Backups and Reports -->
+    <div class="space-y-6">
+        <!-- Reports downloads -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-cloud-arrow-down mr-1 text-emerald-500"></i> Compile Reports</h3>
+            
+            <div class="grid grid-cols-1 gap-2.5">
+                <a href="{{ url_for('admin.admin_reports_download', type='sales') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span>Export Sales Revenue Report (CSV)</span>
+                    <i class="fa-solid fa-download text-slate-400"></i>
+                </a>
+                <a href="{{ url_for('admin.admin_reports_download', type='inventory') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span>Export Stock Inventory Report (CSV)</span>
+                    <i class="fa-solid fa-download text-slate-400"></i>
+                </a>
+                <a href="{{ url_for('admin.admin_reports_download', type='customers') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span>Export Customer Directory (CSV)</span>
+                    <i class="fa-solid fa-download text-slate-400"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Database Backup snapshot manager -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-database mr-1 text-amber-500"></i> Database Snapshot</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Download Backup</h4>
+                    <p class="text-[9px] text-slate-500 mb-2">Export a raw copy of the SQLite database instance file.</p>
+                    <a href="{{ url_for('admin.admin_backup_download') }}" class="w-full text-center bg-slate-900 hover:bg-slate-950 text-white font-bold py-2 rounded-xl text-xs transition-all block">
+                        <i class="fa-solid fa-file-export mr-1"></i> Download .db Snapshot
+                    </a>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1 text-rose-500">Restore Backup</h4>
+                    <p class="text-[9px] text-slate-500 mb-2">Caution: Overwriting the db snapshot will replace all transactions and catalogs.</p>
+                    
+                    <form action="{{ url_for('admin.admin_backup_restore') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('Restore database snapshot? Current database state will be lost!');" class="space-y-2">
+                        <input type="file" name="backup_file" required accept=".db" class="w-full text-xs text-slate-500 file:mr-3 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 dark:file:bg-slate-800 dark:file:text-slate-350 cursor-pointer">
+                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs transition-all">
+                            <i class="fa-solid fa-file-import mr-1"></i> Upload & Restore Snapshot
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

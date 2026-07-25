@@ -1,0 +1,128 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Delivery & Zones Logistics{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Delivery & Logistics</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Manage delivery pin codes, service zones, pricing thresholds, and store courier partners.</p>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-8">
+    <!-- Pincodes / Zones Configurations -->
+    <div class="space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-205 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-map-location-dot mr-1 text-green-500"></i> Configure Delivery Zone</h3>
+            
+            <form action="{{ url_for('admin.admin_delivery_zone_add') }}" method="POST" class="space-y-3.5">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="z-pin" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Pincode *</label>
+                        <input type="text" id="z-pin" name="pincode" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-bold" placeholder="e.g. 500001">
+                    </div>
+                    <div>
+                        <label for="z-name" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Zone Name *</label>
+                        <input type="text" id="z-name" name="zone_name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Hyderabad Central">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="z-charge" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Delivery Charge (₹) *</label>
+                        <input type="number" step="0.01" id="z-charge" name="delivery_charge" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" value="30.0">
+                    </div>
+                    <div>
+                        <label for="z-free" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Free Delivery Min Amt (₹)</label>
+                        <input type="number" step="0.01" id="z-free" name="min_free_delivery_amount" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" value="499.0">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="z-time" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Estimated Delivery duration Time</label>
+                    <input type="text" id="z-time" name="estimated_time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" value="15-30 Mins">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                    Save / Update Delivery Zone
+                </button>
+            </form>
+        </div>
+
+        <!-- Zones List -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-clipboard-list mr-1 text-indigo-500"></i> Active Service Zones</h3>
+            <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                {% if zones %}
+                    {% for z in zones %}
+                    <div class="flex justify-between items-center py-3 text-xs">
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-slate-100">Zone: {{ z.zone_name }} (<span class="font-mono">{{ z.pincode }}</span>)</p>
+                            <p class="text-[9px] text-slate-405 mt-0.5">Est Duration: {{ z.estimated_time }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-black text-slate-950 dark:text-white">₹{{ z.delivery_charge|int }} Charge</span>
+                            <p class="text-[9px] text-slate-400 mt-0.5">Free over: ₹{{ z.min_free_delivery_amount|int }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-xs text-slate-450 font-semibold py-4 text-center">No delivery zones configured yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Delivery Partners registry -->
+    <div class="space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-855 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-user-plus mr-1 text-green-500"></i> Register Delivery Driver</h3>
+            
+            <form action="{{ url_for('admin.admin_delivery') }}" method="POST" class="space-y-3.5">
+                <div>
+                    <label for="d-name" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Driver Name *</label>
+                    <input type="text" id="d-name" name="driver_name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Ramesh Kumar">
+                </div>
+
+                <div>
+                    <label for="d-phone" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Driver Contact Phone *</label>
+                    <input type="text" id="d-phone" name="driver_phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. +91 98765 12345">
+                </div>
+
+                <div>
+                    <label for="d-vehicle" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Vehicle details / Plate *</label>
+                    <input type="text" id="d-vehicle" name="driver_vehicle" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. AP 10 AB 1234">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                    Register Delivery Driver
+                </button>
+            </form>
+        </div>
+
+        <!-- Driver Partners registry list -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-3xl p-5 shadow-sm space-y-4">
+            <h3 class="text-xs font-black text-slate-850 dark:text-slate-200 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-id-card-clip mr-1 text-indigo-500"></i> Active Store Couriers</h3>
+            <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                {% if partners %}
+                    {% for p in partners %}
+                    <div class="flex justify-between items-center py-3 text-xs">
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-slate-100">{{ p.name }}</p>
+                            <p class="text-[9px] text-slate-400 font-semibold mt-0.5">Phone: {{ p.phone }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wide">{{ p.vehicle_number }}</span>
+                            <p class="text-[9px] text-slate-400 mt-0.5">Status: {{ p.status }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-xs text-slate-450 font-semibold py-4 text-center">No driver partners registered yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

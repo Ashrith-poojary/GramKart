@@ -1,0 +1,104 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Gramkart Admin - Scheduled Banners{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="font-poppins font-black text-xl md:text-2xl tracking-tight">Scheduled Banners</h1>
+        <p class="text-xs text-slate-450 dark:text-slate-400">Configure image slider carousels on the storefront, prioritize displays, and set redirect links.</p>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+    <!-- List of Banners (Col Span 2) -->
+    <div class="md:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-slate-100 dark:border-slate-808 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    <th class="py-3">Banner Preview</th>
+                    <th class="py-3">Title / Target Link</th>
+                    <th class="py-3">Display Priority</th>
+                    <th class="py-3">Status</th>
+                    <th class="py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-xs font-semibold text-slate-700 dark:text-slate-350">
+                {% if banners %}
+                    {% for b in banners %}
+                    <tr class="border-b border-slate-100/60 dark:border-slate-808/60 hover:bg-slate-50/50 dark:hover:bg-slate-950/20">
+                        <td class="py-4">
+                            <div class="w-24 h-12 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 dark:border-slate-800">
+                                <img src="{{ b.image_url }}" class="w-full h-full object-cover">
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <h4 class="font-bold text-slate-900 dark:text-white leading-snug">{{ b.title }}</h4>
+                            <p class="text-[9px] text-slate-400 truncate max-w-xs">Link: {{ b.link_url or 'None' }}</p>
+                        </td>
+                        <td class="py-4">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 px-2.5 py-0.5 rounded text-[10px] font-bold">Priority: {{ b.priority }}</span>
+                        </td>
+                        <td class="py-4">
+                            {% if b.is_active %}
+                                <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Visible</span>
+                            {% else %}
+                                <span class="bg-slate-100 dark:bg-slate-805 text-slate-450 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Hidden</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-right">
+                            <div class="flex items-center justify-end gap-2.5">
+                                <form action="{{ url_for('admin.admin_banner_toggle', banner_id=b.id) }}" method="POST" class="inline">
+                                    <button type="submit" class="text-xs font-bold {% if b.is_active %}text-slate-500 hover:text-slate-700{% else %}text-emerald-600 hover:underline{% endif %}">
+                                        {% if b.is_active %}Hide{% else %}Show{% endif %}
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin.admin_banner_delete', banner_id=b.id) }}" method="POST" onsubmit="return confirm('Delete this banner?');" class="inline">
+                                    <button type="submit" class="text-xs text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-slate-450 font-semibold">No banners scheduled for storefront carousel.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Upload Banner Form (Col Span 1) -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805 rounded-3xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-black text-slate-850 dark:text-slate-205 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 pb-2"><i class="fa-solid fa-plus-circle mr-1 text-green-500"></i> Schedule Carousel Banner</h3>
+        
+        <form action="{{ url_for('admin.admin_banners') }}" method="POST" class="space-y-3.5">
+            <div>
+                <label for="b-title" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Banner Title/Alt *</label>
+                <input type="text" id="b-title" name="title" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. Mid-Summer Grocery Sale">
+            </div>
+
+            <div>
+                <label for="b-image-url" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Image URL *</label>
+                <input type="text" id="b-image-url" name="image_url" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="Paste image link">
+            </div>
+
+            <div>
+                <label for="b-link-url" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Redirect link URL (Optional)</label>
+                <input type="text" id="b-link-url" name="link_url" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold" placeholder="e.g. /category/fresh-vegetables">
+            </div>
+
+            <div>
+                <label for="b-priority" class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Display Priority Order</label>
+                <input type="number" id="b-priority" name="priority" value="0" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-green-500 text-slate-800 dark:text-white font-semibold">
+                <span class="text-[8px] text-slate-400 mt-1 block">Higher priority numbers are displayed first.</span>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-green-550 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-green-500/10">
+                Publish Carousel Banner
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

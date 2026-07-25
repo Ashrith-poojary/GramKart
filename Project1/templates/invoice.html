@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gramkart Invoice - #{{ order.id }}</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 md:p-12">
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative">
+        <!-- Print / Close Controls -->
+        <div class="no-print absolute top-6 right-6 flex gap-2">
+            <button onclick="window.print()" class="bg-primary-600 hover:bg-primary-750 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md bg-green-600">
+                Print Invoice
+            </button>
+            <button onclick="window.close()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl transition-all">
+                Close
+            </button>
+        </div>
+
+        <!-- Invoice Header -->
+        <div class="flex justify-between items-start border-b border-slate-100 pb-8 mb-8 mt-12 md:mt-0">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold">
+                        G
+                    </div>
+                    <span class="font-black text-lg text-slate-900 tracking-tight">Gramkart</span>
+                </div>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Store Invoice Bill</p>
+            </div>
+            <div class="text-right">
+                <h2 class="font-black text-xl text-slate-900">INVOICE</h2>
+                <p class="text-xs font-mono text-slate-500 mt-1">#GK-{{ order.id }}-{{ order.created_at.strftime('%Y%m%d') }}</p>
+                <p class="text-xs text-slate-400 mt-1">Date: {{ order.created_at.strftime('%d %b %Y') }}</p>
+            </div>
+        </div>
+
+        <!-- Billing Info -->
+        <div class="grid sm:grid-cols-2 gap-8 mb-8">
+            <div>
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Delivered To</h4>
+                <p class="font-bold text-sm text-slate-800">{{ order.recipient_name }}</p>
+                <p class="text-xs text-slate-500 font-mono">+91 {{ order.recipient_phone }}</p>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                    {{ order.delivery_village }}, Near {{ order.delivery_landmark }}<br>
+                    Pincode: {{ order.delivery_pincode }}
+                </p>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Payment Details</h4>
+                <p class="text-xs font-semibold text-slate-650">Method: <span class="font-bold text-slate-800">{{ order.payment_method }}</span></p>
+                {% if order.payment_reference %}
+                <p class="text-xs font-semibold text-slate-650 mt-1">Reference (UTR): <span class="font-mono font-bold text-slate-800">{{ order.payment_reference }}</span></p>
+                {% endif %}
+                <p class="text-xs font-semibold text-slate-650 mt-1">Status: 
+                    {% if order.payment_status == 'Paid' %}
+                    <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">Paid</span>
+                    {% else %}
+                    <span class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold">Pending</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="w-full text-left border-collapse mb-8">
+            <thead>
+                <tr class="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    <th class="py-3">Product Name</th>
+                    <th class="py-3 text-center">Unit</th>
+                    <th class="py-3 text-center">Price</th>
+                    <th class="py-3 text-center">Qty</th>
+                    <th class="py-3 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody class="text-xs font-semibold text-slate-700">
+                {% for item in order.items %}
+                <tr class="border-b border-slate-100">
+                    <td class="py-4">{{ item.product_name }}</td>
+                    <td class="py-4 text-center text-slate-500">{{ item.unit }}</td>
+                    <td class="py-4 text-center">₹{{ item.price|int }}</td>
+                    <td class="py-4 text-center">{{ item.quantity }}</td>
+                    <td class="py-4 text-right text-slate-900">₹{{ (item.price * item.quantity)|int }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total Breakdown -->
+        <div class="flex justify-end mb-8">
+            <div class="w-full sm:w-64 space-y-2.5 text-xs">
+                <div class="flex justify-between text-slate-500 font-semibold">
+                    <span>Items Subtotal:</span>
+                    <span class="text-slate-800 font-bold">₹{{ (order.total_amount - order.delivery_fee - (order.total_amount * 0.05))|int }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500 font-semibold">
+                    <span>GST (5%):</span>
+                    <span class="text-slate-800 font-bold">₹{{ (order.total_amount * 0.05)|int }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500 font-semibold">
+                    <span>Delivery Charge:</span>
+                    <span class="text-slate-800 font-bold">{% if order.delivery_fee == 0 %}FREE{% else %}₹{{ order.delivery_fee|int }}{% endif %}</span>
+                </div>
+                <hr class="border-slate-100">
+                <div class="flex justify-between text-sm font-black text-slate-900">
+                    <span>Grand Total Paid:</span>
+                    <span>₹{{ order.total_amount|int }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer terms -->
+        <div class="border-t border-slate-100 pt-6 text-[10px] text-slate-400 font-semibold leading-relaxed text-center">
+            <p>Thank you for buying from Gramkart Store!</p>
+            <p class="mt-0.5">For refunds or item returns, please contact the store owner within 24 hours of delivery.</p>
+        </div>
+    </div>
+</body>
+</html>
